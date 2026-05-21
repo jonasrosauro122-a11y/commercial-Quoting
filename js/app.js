@@ -8,6 +8,7 @@ const PASSING_SCORE = 90;
 const STORAGE_KEY_TRAINEE = 'lava_trainee';
 const STORAGE_KEY_ATTEMPTS = 'lava_attempts';
 const STORAGE_KEY_THEME = 'lava_theme';
+const LAVA_LOGO_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAnFBMVEXnODXx8fHnMS7y9/by9PHx+Pfx9PTnNTTnMTDz9vfv8vHmKyfrhoLnNTLx5+fpcW/nSkfpa2vqd3Xtqqjuvb3rgn/pcnDv2NjmLSrtpqXpenrpaGfv0tLoZ2Hx7/HmTUrrjIvmPDrvy8vmVlDmREDwuLfoWlnuxsTrmpjoj5DtoaDx6e3sj4zmIR7umZ3vr67w4OHy1dHrt7DpWFgqCTRnAAAGiUlEQVR4nO2dC3uaPBSAIdFwa6hYlKgIap23rZ9u/f//7RNvJEHXCziPeN49W522PHk9IZeTxBoGgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAI8rhwQgThty7F9RDitT8aBVNh37ok18HmnUniMMb8HzNhWbcuTvXY6dxh5g7aWPD6GZI0ouYR11zX7m7kfNIwJdjSu3WRKoYsaSIbmn6rXkHk08hUoStx60JVCgk0QdONb12mahFLpiv+fK1VNfV6umGSDGtlKF6oZuiaw1qNbMSyYOjXq5aeaWmiW5epWvg41gydRb16i22PrzQ1Catbj7+N4qSpdPi/6jZqM6xpLCmyXu0Et/W0FZqHmur4y7pV0R2E92M3E8xmwLU03I5s2lmvyOYeuXVJrgXp7w1rK/gQhs3aG9LdzLBWQ26Fo2EdYsiJ8Iq8tSXDwqt3lAwnnmgFo9XLid6W3dcw6w/ZrpaK/3oqi1+DlvDuwJKL8fM6MmmTHmnuyR7uxjQs2lp4y/wb9jhOM4nW3THwwYAlpouIsUJSRiYzJEFy9iXmRIspZEdClptm41zZVUPe2lx6E1y6WXCwTZGYxfSv4TsY2iJ0zsbw8A2/BzBnHpYYJR/7ZYZvhayNRjKC2OJYZGV+RnBrGLh/iWCGy14AKhZTopdD9Im3YQ2uonqLD2reF6HQsgCiX6lfljEegUrG2emmYkPT9WcE0EKxHTpVG5rNOaDGhrTPdfPu4Y/85XLICldw6ROceipivR1l1PS/RlIY6zkRmC6DBI4aAcYmo0Ha+ohUZjCaNDRHpw/lTvTmatFY9Lyd7nGLc0uC7yg+c0AIb/Bb7XHcGEiPwVu+UjAa8u/dQIT8UBUTICtwoqOEkM7tb+4HsizxQ2mT2S8YbY1Yy8Vim/T7mSY+jeR3i4UwDLnSkpZ730lHvaHHEKopn26kfi7ZTMsUyjLkIDZgLIXzWYOyE83QK9XCe2ulsRlAmO7z91DmqVwfJkbKTd2GYGhwJe1ZskikKy2kuk4fRlNTJeSZPpghiFpaKY9g2ETDOwcNb4JlSNO8sheDaEiGsURUchQC0jBgp/W07bi0ZPoIoqEI5CRN2QQZREOChl+7GkhDJs2AHdWQE2EZRFwoJxG2Zau7EzTDNoS9N38zJONOGEfz1UycmTRy8fwyiSfrQFaEadi4YGh5g2g//U96VqGnzDacOrtXwzSPsTY/BG4o+qdlbxrqGUYrPWVk2Ob1pAjzPrxgyN/9PKvU1Fc8+cTJRfKtbndl6IXSVC8xU6Weko6cccrHCfp9CMLw+bwhn5oydKUE0ZsoifL4kiGI+/CCIekqeUE2UauputbhH7OsiqEJO4bkSTWM5DTjNsDKculpDUY3hBfDfEyz3xGcG8ZyR8mnDdUwvUNDPlPWkZJQqaVE2drANuO7MWx2TqEiytlfLfXprWUT+sc7Xe2ODJUE/W5XqfxTM2Vn1Ds/Xe2ODA2e70FhhSOjYpF3F3Th5Ve7J0NrfFB0Hb9bmFSJxWELJnN6eTN7X4YG90ZRtovE/5MW9xxwbzBJsvxHHHhcuhp0Q20GLIxh56ndOr8xhoj3zqgzs+ReXZlbgDTUM1GWLcjljT9c6K/egWGnZBbjAQwpOEMbDb8ExFqKhl9DNWR1NGzXPoYPZoi19N+gGjpo+AGPYAh9TON0Sq7jQzTsVmqoZPtZF4Ih6VZZS8VCzkEmzyBy3pUaeqG8npHMIOyCrrSW2urZjXKbxquiUkNvpez7jyEIVmoohj/lEDbWILYIq4a0hKEl0kg9x1jypq4I3fDbheJvr5F6Bs4HcRtqhqz/RogQWZaQ7B/s2f7n9BMkf+74Tdk/6Uo7ggnlQLcWw/XTBYKjIm8fnulIPC1C39HPmM4g9Ia6ocmoQ8/RzAOyaWqfapJBmX6Ils1hhFA3vITzcipv9LnPJkiGMEL4WUP6VUOnB6IhNa5myOKxAeQU8JUMfSDNjHE1wzaUOnqllibpAGlHM65g6PiAIviNWmp9ZEijGSTByg1p0rMh5C5yqjR0TWqGQw/EeDuHdD/8ALOs7J+4D5lD/fUA3m+h4enk8OtVWIFG9rfR2B3ylmJIGwUYS/w4+8g9IL28AjeGMoOM/NGR4LSxyxgGZxi+Gh7cj03MZnn2gf0Dsn9q/3f3lFR4m+Tkj8ufe0MQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEEQBEHugf8BDH2LtyYD/lgAAAAASUVORK5CYII=';
 
 /* ── STATE ── */
 let state = {
@@ -337,10 +338,15 @@ function refreshDashboard() {
 }
 
 /* ── SCENARIO GRIDS ── */
+function getScenarioById(id) {
+  const allScenarios = [...window.SCENARIOS.property, ...window.SCENARIOS.auto];
+  return allScenarios.find(s => s.id === id);
+}
+
 function renderScenarioGrid(containerId, scenarios) {
   const container = $(containerId);
   container.innerHTML = scenarios.map(s => `
-    <div class="scenario-card ${s.difficulty}" onclick="startScenario('${s.id}')">
+    <div class="scenario-card ${s.difficulty}" onclick="previewScenario('${s.id}')" role="button" tabindex="0" aria-label="Preview ${escHtml(s.name)}">
       <div class="scenario-card-top">
         <span class="badge ${s.difficulty}">${s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)}</span>
         <span class="badge ${s.line === 'Property' ? 'property' : 'auto'}">${s.line}</span>
@@ -351,11 +357,118 @@ function renderScenarioGrid(containerId, scenarios) {
         <span>📋 ${s.fields} fields</span>
         <span>⏱ ${s.timeEstimate}</span>
       </div>
-      <button class="scenario-card-action" onclick="event.stopPropagation();startScenario('${s.id}')">Start Simulation →</button>
+      <div class="scenario-card-actions">
+        <button class="scenario-card-action" onclick="event.stopPropagation();printScenario('${s.id}')">Print / PDF</button>
+        <button class="scenario-card-action" onclick="event.stopPropagation();downloadScenario('${s.id}')">Download</button>
+        <button class="scenario-card-action start-action" onclick="event.stopPropagation();startScenario('${s.id}')">Start Simulation →</button>
+      </div>
     </div>`).join('');
 }
 function renderPropertyScenarios() { renderScenarioGrid('property-scenario-grid', window.SCENARIOS.property); }
 function renderAutoScenarios() { renderScenarioGrid('auto-scenario-grid', window.SCENARIOS.auto); }
+
+function scenarioPacketFileName(scenario) {
+  return `${scenario.line}-${scenario.name}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') + '-training-scenario.html';
+}
+
+function scenarioPacketDocument(scenario) {
+  const b = scenario.brief;
+  const packetId = `SUB-${scenario.line === 'Property' ? 'CP' : 'CA'}-${scenario.id.toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
+  const targetEffective = fmtFullDate(addDays(new Date(), 14));
+  const rows = b.items.map(it => `
+    <tr><th>${escHtml(it.label)}</th><td>${escHtml(it.value)}</td></tr>`).join('');
+  const traps = (b.distractors || []).map(d => `<li>${escHtml(d)}</li>`).join('');
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escHtml(scenario.name)} — LAVA Scenario Packet</title>
+<style>
+  *{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f5f7;color:#151515;padding:28px} .packet{max-width:980px;margin:0 auto;background:#fff;border:1px solid #d8dde5;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.10)} .head{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:22px 26px;background:#151515;color:#fff;border-bottom:6px solid #e73835}.brand{display:flex;align-items:center;gap:14px}.brand img{width:58px;height:58px;border-radius:14px;object-fit:cover}.brand h1{margin:0;font-size:22px;line-height:1.1}.brand p{margin:4px 0 0;color:#ffb4b2;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700}.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:18px 26px;background:#fff5f5;border-bottom:1px solid #ffd1d0}.meta div{background:#fff;border:1px solid #ffd1d0;border-radius:12px;padding:10px}.meta span{display:block;font-size:10px;color:#7f1d1d;text-transform:uppercase;letter-spacing:.7px;font-weight:700}.meta strong{display:block;margin-top:3px;font-size:13px}.content{padding:24px 26px}.notice{border-left:5px solid #e73835;background:#fff5f5;padding:13px 15px;border-radius:12px;margin-bottom:18px;color:#7f1d1d;line-height:1.5}h2{font-size:20px;margin:0 0 8px} .desc{color:#475569;margin:0 0 20px;line-height:1.6}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #dbe2ea;padding:10px 12px;text-align:left;vertical-align:top}th{width:30%;background:#f8fafc;color:#334155;text-transform:uppercase;font-size:11px;letter-spacing:.5px}.traps{margin-top:18px;border:1px solid #fed7aa;background:#fff7ed;border-radius:14px;padding:15px}.traps h3{margin:0 0 8px;color:#9a3412;font-size:14px}.traps li{margin:6px 0;color:#9a3412}.signoff{margin-top:22px;font-size:12px;color:#64748b}.actions{padding:0 26px 24px;text-align:right}.btn{display:inline-block;border:0;background:#e73835;color:#fff;border-radius:999px;padding:11px 16px;font-weight:800;cursor:pointer}@media print{body{background:#fff;padding:0}.packet{box-shadow:none;border-radius:0;border:0}.actions{display:none}.head{-webkit-print-color-adjust:exact;print-color-adjust:exact}.meta{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){body{padding:14px}.head{flex-direction:column;align-items:flex-start}.meta{grid-template-columns:1fr}th{width:42%}}
+</style>
+</head>
+<body>
+  <article class="packet">
+    <header class="head">
+      <div class="brand">
+        <img src="${LAVA_LOGO_SRC}" alt="LAVA logo">
+        <div><p>LAVA Commercial Training</p><h1>${escHtml(scenario.name)}</h1></div>
+      </div>
+      <div><strong>Scenario Packet</strong><br><span style="color:#ffb4b2;font-size:12px">Print or save before quoting</span></div>
+    </header>
+    <section class="meta">
+      <div><span>Line</span><strong>${escHtml(scenario.line)}</strong></div>
+      <div><span>Difficulty</span><strong>${escHtml(scenario.difficulty.toUpperCase())}</strong></div>
+      <div><span>Submission</span><strong>${escHtml(packetId)}</strong></div>
+      <div><span>Target Effective</span><strong>${escHtml(targetEffective)}</strong></div>
+    </section>
+    <section class="content">
+      <div class="notice"><strong>Non-Licensed VA Reminder:</strong> Use this packet for data entry practice only. Do not bind coverage, advise on limits, interpret coverage, or promise eligibility. Escalate all coverage questions to a licensed producer.</div>
+      <h2>${escHtml(b.title)}</h2>
+      <p class="desc">${escHtml(scenario.description)}</p>
+      <table><tbody>${rows}</tbody></table>
+      ${traps ? `<div class="traps"><h3>Attention-to-Detail Traps</h3><ul>${traps}</ul></div>` : ''}
+      <p class="signoff">Generated by the LAVA Commercial Quoting Simulator for training use only. This is not an insurance policy, binder, quote proposal, or coverage recommendation.</p>
+    </section>
+    <div class="actions"><button class="btn" onclick="window.print()">Print / Save as PDF</button></div>
+  </article>
+</body>
+</html>`;
+}
+
+function printScenario(id) {
+  const scenario = getScenarioById(id);
+  if (!scenario) return;
+  const popup = window.open('', '_blank');
+  if (!popup) {
+    showModal('Print Blocked', 'Please allow pop-ups for this site, then try printing the scenario again.', [{ label: 'Close', cls: 'btn-outline' }]);
+    return;
+  }
+  popup.document.open();
+  popup.document.write(scenarioPacketDocument(scenario));
+  popup.document.close();
+  popup.focus();
+  setTimeout(() => popup.print(), 350);
+}
+
+function downloadScenario(id) {
+  const scenario = getScenarioById(id);
+  if (!scenario) return;
+  const blob = new Blob([scenarioPacketDocument(scenario)], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = scenarioPacketFileName(scenario);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function renderScenarioPreview(scenario) {
+  const b = scenario.brief;
+  const topItems = b.items.slice(0, 8).map(it => `
+    <div><span>${escHtml(it.label)}</span><strong>${escHtml(it.value)}</strong></div>`).join('');
+  return `
+    <p><strong>${escHtml(scenario.name)}</strong></p>
+    <p class="text-muted">${escHtml(scenario.description)}</p>
+    <div class="scenario-preview-list">${topItems}</div>
+    <div class="scenario-preview-warning"><strong>Required before starting:</strong> Print the scenario or download the packet so the VA can work from the intake details and practice accuracy like a real carrier quote submission.</div>`;
+}
+
+function previewScenario(id) {
+  const scenario = getScenarioById(id);
+  if (!scenario) return;
+  showModal('Scenario Packet Required', renderScenarioPreview(scenario), [
+    { label: 'Print / PDF', cls: 'btn-outline', action: () => printScenario(id) },
+    { label: 'Download Scenario', cls: 'btn-outline', action: () => downloadScenario(id) },
+    { label: 'Start Simulation', cls: 'btn-primary', action: () => startScenario(id) },
+  ]);
+}
 
 /* ── START SCENARIO ── */
 function startScenario(id) {
@@ -450,6 +563,10 @@ function renderScenarioBrief(scenario) {
   const intakeId = `SUB-${scenario.line === 'Property' ? 'CP' : 'CA'}-${scenario.id.toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
   const targetEffective = fmtFullDate(addDays(new Date(), 14));
   return `
+    <div class="brief-tools">
+      <button type="button" class="brief-tool-btn" onclick="printScenario('${scenario.id}')">Print / Save Scenario PDF</button>
+      <button type="button" class="brief-tool-btn" onclick="downloadScenario('${scenario.id}')">Download Scenario Packet</button>
+    </div>
     <div class="carrier-status-strip">
       <div><span>Carrier</span><strong>${escHtml(carrierNameForScenario(scenario))}</strong></div>
       <div><span>Submission</span><strong>${escHtml(intakeId)}</strong></div>
@@ -1478,13 +1595,15 @@ function init() {
     if (e.target === $('modal-overlay')) hideModal();
   });
 
-  // Login listener + saved session
+  // Login listener. Always show the branded login landing page on initial load.
+  // This prevents the dashboard/sidebar from appearing before the VA signs in.
   initLogin();
-  const saved = loadTrainee();
-  if (saved) {
-    state.trainee = saved;
-    bootApp();
-  }
+  stopTimer();
+  state.trainee = null;
+  localStorage.removeItem(STORAGE_KEY_TRAINEE);
+  $('page-app').classList.remove('active');
+  $('page-login').classList.add('active');
 }
+
 
 document.addEventListener('DOMContentLoaded', init);
