@@ -660,5 +660,1592 @@ window.SCENARIOS = {
         loss_payee_2: 'Paccar Financial',
       }
     }
-  ]
+  ],
+  bop: [
+    {
+        "id": "bop-easy-1",
+        "line": "BOP",
+        "difficulty": "easy",
+        "name": "Easy \u2014 Maple Street Bookstore",
+        "description": "Small tenant-occupied retail store requesting a BOP package with BPP, business income, and standard liability.",
+        "fields": 27,
+        "timeEstimate": "10\u201315 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 Maple Street Bookstore",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "Maple Street Bookstore LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Evan Clark, Owner"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(614) 555-0144"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "evan@maplestreetbooks.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "31-4729180"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "5942 \u2014 Book Stores"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "4 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "118 Maple St, Columbus, OH 43215"
+                },
+                {
+                    "label": "Business Type",
+                    "value": "Retail Store"
+                },
+                {
+                    "label": "Occupied Area",
+                    "value": "1,800 sq ft"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$420,000"
+                },
+                {
+                    "label": "Annual Payroll",
+                    "value": "$95,000"
+                },
+                {
+                    "label": "Building Limit",
+                    "value": "$0 \u2014 tenant only"
+                },
+                {
+                    "label": "BPP Limit",
+                    "value": "$95,000"
+                },
+                {
+                    "label": "Business Income",
+                    "value": "$50,000"
+                },
+                {
+                    "label": "BOP Liability Limit",
+                    "value": "$1,000,000 / $2,000,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$1,000"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "Maple Plaza LLC \u2014 landlord"
+                },
+                {
+                    "label": "Prior Losses",
+                    "value": "0"
+                }
+            ],
+            "distractors": [
+                "Client asked about workers comp; do NOT include WC in the BOP quote.",
+                "Owner mentioned online sales, but the requested location exposure is the retail store only."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "Maple Street Bookstore LLC",
+            "g_contact_name": "Evan Clark",
+            "g_phone": "(614) 555-0144",
+            "g_email": "evan@maplestreetbooks.com",
+            "g_fein": "31-4729180",
+            "g_entity_type": "LLC",
+            "g_sic_code": "5942",
+            "g_years_in_business": "4",
+            "g_street": "118 Maple St",
+            "g_city": "Columbus",
+            "g_state": "OH",
+            "g_zip": "43215",
+            "bop_business_type": "Retail Store",
+            "bop_square_footage": "1800",
+            "bop_annual_revenue": "420000",
+            "bop_payroll": "95000",
+            "bop_building_limit": "0",
+            "bop_bpp_limit": "95000",
+            "bop_business_income": "50000",
+            "bop_gl_limit": "1000000/2000000",
+            "bop_deductible": "1000",
+            "g_additional_insured": "Maple Plaza LLC",
+            "g_num_losses": "0",
+            "bop_uw_cooking": "No",
+            "bop_uw_alarm": "Central Monitored",
+            "bop_uw_prior_cancel": "No",
+            "bop_uw_subcontractors": "No"
+        }
+    },
+    {
+        "id": "bop-normal-1",
+        "line": "BOP",
+        "difficulty": "normal",
+        "name": "Normal \u2014 Bella Cup Cafe",
+        "description": "Cafe tenant with cooking/baking exposure, landlord additional insured requirement, and one small property loss.",
+        "fields": 30,
+        "timeEstimate": "15\u201320 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 Bella Cup Cafe",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "Bella Cup Cafe Inc."
+                },
+                {
+                    "label": "Contact",
+                    "value": "Nina Patel, President"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(813) 555-0198"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "npatel@bellacupcafe.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "59-3810274"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "Corporation"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "5812 \u2014 Eating Places"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "6 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "720 Bayshore Blvd, Tampa, FL 33606"
+                },
+                {
+                    "label": "Business Type",
+                    "value": "Bakery / Food Service"
+                },
+                {
+                    "label": "Occupied Area",
+                    "value": "2,600 sq ft"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$840,000"
+                },
+                {
+                    "label": "Annual Payroll",
+                    "value": "$220,000"
+                },
+                {
+                    "label": "Building Limit",
+                    "value": "$0 \u2014 tenant only"
+                },
+                {
+                    "label": "BPP Limit",
+                    "value": "$180,000"
+                },
+                {
+                    "label": "Business Income",
+                    "value": "$125,000"
+                },
+                {
+                    "label": "BOP Liability Limit",
+                    "value": "$1,000,000 / $2,000,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$2,500"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "Bayshore Retail Partners LLC"
+                },
+                {
+                    "label": "Prior Loss",
+                    "value": "2023 \u2014 Equipment Breakdown, $6,200 paid"
+                }
+            ],
+            "distractors": [
+                "Do not enter the catering van; it belongs under Commercial Auto.",
+                "Liquor liability was mentioned as a future question; do NOT include it in this BOP scenario."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "Bella Cup Cafe Inc.",
+            "g_contact_name": "Nina Patel",
+            "g_phone": "(813) 555-0198",
+            "g_email": "npatel@bellacupcafe.com",
+            "g_fein": "59-3810274",
+            "g_entity_type": "Corporation",
+            "g_sic_code": "5812",
+            "g_years_in_business": "6",
+            "g_street": "720 Bayshore Blvd",
+            "g_city": "Tampa",
+            "g_state": "FL",
+            "g_zip": "33606",
+            "bop_business_type": "Bakery / Food Service",
+            "bop_square_footage": "2600",
+            "bop_annual_revenue": "840000",
+            "bop_payroll": "220000",
+            "bop_building_limit": "0",
+            "bop_bpp_limit": "180000",
+            "bop_business_income": "125000",
+            "bop_gl_limit": "1000000/2000000",
+            "bop_deductible": "2500",
+            "g_additional_insured": "Bayshore Retail Partners LLC",
+            "g_num_losses": "1",
+            "g_loss1_year": "2023",
+            "g_loss1_type": "Equipment Breakdown",
+            "g_loss1_amount": "6200",
+            "bop_uw_cooking": "Yes",
+            "bop_uw_alarm": "Central Monitored",
+            "bop_uw_prior_cancel": "No",
+            "bop_uw_subcontractors": "No"
+        }
+    },
+    {
+        "id": "bop-hard-1",
+        "line": "BOP",
+        "difficulty": "hard",
+        "name": "Hard \u2014 Studio Eleven Salon",
+        "description": "Salon with owned building, landlord/lessor nuance, BPP, business income, one slip claim, and accuracy traps.",
+        "fields": 32,
+        "timeEstimate": "20\u201325 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 Studio Eleven Salon",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "Studio Eleven Salon & Spa LLC"
+                },
+                {
+                    "label": "DBA",
+                    "value": "Studio 11"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Camila Reyes, Managing Member"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(602) 555-0433"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "camila@studio11salon.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "86-2047719"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "7231 \u2014 Beauty Shops"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "9 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "4411 N 7th Ave, Phoenix, AZ 85013"
+                },
+                {
+                    "label": "Business Type",
+                    "value": "Beauty Salon"
+                },
+                {
+                    "label": "Occupied Area",
+                    "value": "3,400 sq ft"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$1,150,000"
+                },
+                {
+                    "label": "Annual Payroll",
+                    "value": "$360,000"
+                },
+                {
+                    "label": "Building Limit",
+                    "value": "$675,000"
+                },
+                {
+                    "label": "BPP Limit",
+                    "value": "$240,000"
+                },
+                {
+                    "label": "Business Income",
+                    "value": "$250,000"
+                },
+                {
+                    "label": "BOP Liability Limit",
+                    "value": "$2,000,000 / $4,000,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$5,000"
+                },
+                {
+                    "label": "Mortgagee",
+                    "value": "Desert Community Bank"
+                },
+                {
+                    "label": "Loss Payee",
+                    "value": "Salon Equipment Finance LLC"
+                },
+                {
+                    "label": "Prior Loss",
+                    "value": "2022 \u2014 Slip and Fall, $18,900 paid"
+                }
+            ],
+            "distractors": [
+                "The nail technician rents a booth; do not list her separate LLC as named insured.",
+                "Cyber coverage was discussed but is outside this BOP entry."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "Studio Eleven Salon & Spa LLC",
+            "g_dba": "Studio 11",
+            "g_contact_name": "Camila Reyes",
+            "g_phone": "(602) 555-0433",
+            "g_email": "camila@studio11salon.com",
+            "g_fein": "86-2047719",
+            "g_entity_type": "LLC",
+            "g_sic_code": "7231",
+            "g_years_in_business": "9",
+            "g_street": "4411 N 7th Ave",
+            "g_city": "Phoenix",
+            "g_state": "AZ",
+            "g_zip": "85013",
+            "bop_business_type": "Beauty Salon",
+            "bop_square_footage": "3400",
+            "bop_annual_revenue": "1150000",
+            "bop_payroll": "360000",
+            "bop_building_limit": "675000",
+            "bop_bpp_limit": "240000",
+            "bop_business_income": "250000",
+            "bop_gl_limit": "2000000/4000000",
+            "bop_deductible": "5000",
+            "g_mortgagee": "Desert Community Bank",
+            "g_loss_payee": "Salon Equipment Finance LLC",
+            "g_num_losses": "1",
+            "g_loss1_year": "2022",
+            "g_loss1_type": "Slip and Fall",
+            "g_loss1_amount": "18900",
+            "bop_uw_cooking": "No",
+            "bop_uw_alarm": "Central Monitored",
+            "bop_uw_prior_cancel": "No",
+            "bop_uw_subcontractors": "Yes"
+        }
+    }
+],
+  workersComp: [
+    {
+        "id": "wc-easy-1",
+        "line": "Workers Compensation",
+        "difficulty": "easy",
+        "name": "Easy \u2014 Northgate Accounting",
+        "description": "Office-only accounting firm with one clerical class code, clean losses, and owners excluded.",
+        "fields": 31,
+        "timeEstimate": "10\u201315 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 Northgate Accounting",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "Northgate Accounting Services LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Liam Hughes, Partner"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(216) 555-0112"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "liam@northgateacct.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "34-2718045"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "8721 \u2014 Accounting Services"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "5 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "900 Euclid Ave, Cleveland, OH 44115"
+                },
+                {
+                    "label": "WC State",
+                    "value": "OH"
+                },
+                {
+                    "label": "Employees",
+                    "value": "8 full-time, 2 part-time"
+                },
+                {
+                    "label": "Total Payroll",
+                    "value": "$510,000"
+                },
+                {
+                    "label": "Class Code 1",
+                    "value": "8810 \u2014 Clerical Office Employees, payroll $510,000"
+                },
+                {
+                    "label": "Class Code 2",
+                    "value": "None"
+                },
+                {
+                    "label": "Experience Mod",
+                    "value": "1.00"
+                },
+                {
+                    "label": "Prior Carrier",
+                    "value": "None \u2014 new purchase"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "500/500/500"
+                },
+                {
+                    "label": "Prior Losses",
+                    "value": "0"
+                }
+            ],
+            "distractors": [
+                "Do not enter the owner draws as payroll.",
+                "They asked about EPLI; that is not part of Workers Compensation."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "Northgate Accounting Services LLC",
+            "g_contact_name": "Liam Hughes",
+            "g_phone": "(216) 555-0112",
+            "g_email": "liam@northgateacct.com",
+            "g_fein": "34-2718045",
+            "g_entity_type": "LLC",
+            "g_sic_code": "8721",
+            "g_years_in_business": "5",
+            "g_street": "900 Euclid Ave",
+            "g_city": "Cleveland",
+            "g_state": "OH",
+            "g_zip": "44115",
+            "wc_state": "OH",
+            "wc_full_time": "8",
+            "wc_part_time": "2",
+            "wc_owner_included": "No",
+            "wc_annual_payroll": "510000",
+            "wc_class_code1": "8810",
+            "wc_class_desc1": "Clerical Office Employees",
+            "wc_payroll1": "510000",
+            "wc_class_code2": "None",
+            "wc_class_desc2": "None",
+            "wc_payroll2": "0",
+            "wc_mod_factor": "1.00",
+            "wc_prior_carrier": "None",
+            "wc_policy_limit": "500/500/500",
+            "g_num_losses": "0",
+            "wc_safety_program": "Yes",
+            "wc_return_to_work": "Yes",
+            "wc_subcontractors": "No",
+            "wc_labor_leasing": "No"
+        }
+    },
+    {
+        "id": "wc-normal-1",
+        "line": "Workers Compensation",
+        "difficulty": "normal",
+        "name": "Normal \u2014 BrightPath Landscaping",
+        "description": "Landscaping contractor with split payroll, prior carrier, one medical-only claim, and subcontractor exposure.",
+        "fields": 34,
+        "timeEstimate": "15\u201320 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 BrightPath Landscaping",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "BrightPath Landscaping Inc."
+                },
+                {
+                    "label": "Contact",
+                    "value": "Oscar Martinez, Operations Manager"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(512) 555-0227"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "omartinez@brightpathlandscape.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "74-3912880"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "Corporation"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "0782 \u2014 Lawn and Garden Services"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "8 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "1550 Airport Blvd, Austin, TX 78702"
+                },
+                {
+                    "label": "WC State",
+                    "value": "TX"
+                },
+                {
+                    "label": "Employees",
+                    "value": "18 full-time, 6 part-time"
+                },
+                {
+                    "label": "Total Payroll",
+                    "value": "$880,000"
+                },
+                {
+                    "label": "Class Code 1",
+                    "value": "0042 \u2014 Landscape Gardening, payroll $720,000"
+                },
+                {
+                    "label": "Class Code 2",
+                    "value": "8810 \u2014 Clerical, payroll $160,000"
+                },
+                {
+                    "label": "Experience Mod",
+                    "value": "0.94"
+                },
+                {
+                    "label": "Prior Carrier",
+                    "value": "Texas Mutual"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "1000/1000/1000"
+                },
+                {
+                    "label": "Loss",
+                    "value": "2023 \u2014 Medical Only, $4,300 paid"
+                }
+            ],
+            "distractors": [
+                "Do not include subcontractor cost as payroll unless uninsured.",
+                "One seasonal helper is part-time, not full-time."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "BrightPath Landscaping Inc.",
+            "g_contact_name": "Oscar Martinez",
+            "g_phone": "(512) 555-0227",
+            "g_email": "omartinez@brightpathlandscape.com",
+            "g_fein": "74-3912880",
+            "g_entity_type": "Corporation",
+            "g_sic_code": "0782",
+            "g_years_in_business": "8",
+            "g_street": "1550 Airport Blvd",
+            "g_city": "Austin",
+            "g_state": "TX",
+            "g_zip": "78702",
+            "wc_state": "TX",
+            "wc_full_time": "18",
+            "wc_part_time": "6",
+            "wc_owner_included": "No",
+            "wc_annual_payroll": "880000",
+            "wc_class_code1": "0042",
+            "wc_class_desc1": "Landscape Gardening",
+            "wc_payroll1": "720000",
+            "wc_class_code2": "8810",
+            "wc_class_desc2": "Clerical Office Employees",
+            "wc_payroll2": "160000",
+            "wc_mod_factor": "0.94",
+            "wc_prior_carrier": "Texas Mutual",
+            "wc_policy_limit": "1000/1000/1000",
+            "g_num_losses": "1",
+            "g_loss1_year": "2023",
+            "g_loss1_type": "Medical Only",
+            "g_loss1_amount": "4300",
+            "wc_safety_program": "Yes",
+            "wc_return_to_work": "Yes",
+            "wc_subcontractors": "Yes",
+            "wc_labor_leasing": "No"
+        }
+    },
+    {
+        "id": "wc-hard-1",
+        "line": "Workers Compensation",
+        "difficulty": "hard",
+        "name": "Hard \u2014 ForgeWorks Manufacturing",
+        "description": "Manufacturing risk with split payroll, experience mod above 1.00, two prior claims, and owner inclusion detail.",
+        "fields": 37,
+        "timeEstimate": "20\u201330 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 ForgeWorks Manufacturing",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "ForgeWorks Manufacturing Co."
+                },
+                {
+                    "label": "Contact",
+                    "value": "Dana Kim, HR Director"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(313) 555-0671"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "dkim@forgeworks-mfg.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "38-7712049"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "S-Corporation"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "3499 \u2014 Fabricated Metal Products"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "17 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "4100 Fort St, Detroit, MI 48209"
+                },
+                {
+                    "label": "WC State",
+                    "value": "MI"
+                },
+                {
+                    "label": "Employees",
+                    "value": "44 full-time, 9 part-time"
+                },
+                {
+                    "label": "Total Payroll",
+                    "value": "$2,450,000"
+                },
+                {
+                    "label": "Class Code 1",
+                    "value": "3066 \u2014 Sheet Metal Work, payroll $1,980,000"
+                },
+                {
+                    "label": "Class Code 2",
+                    "value": "8810 \u2014 Clerical, payroll $470,000"
+                },
+                {
+                    "label": "Experience Mod",
+                    "value": "1.12"
+                },
+                {
+                    "label": "Prior Carrier",
+                    "value": "Accident Fund"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "1000/1000/1000"
+                },
+                {
+                    "label": "Loss 1",
+                    "value": "2022 \u2014 Laceration, $22,600 paid"
+                },
+                {
+                    "label": "Loss 2",
+                    "value": "2024 \u2014 Back Strain, $14,800 paid"
+                }
+            ],
+            "distractors": [
+                "Do not use class code 8810 for shop employees.",
+                "The officer is included in payroll; do not exclude owners."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "ForgeWorks Manufacturing Co.",
+            "g_contact_name": "Dana Kim",
+            "g_phone": "(313) 555-0671",
+            "g_email": "dkim@forgeworks-mfg.com",
+            "g_fein": "38-7712049",
+            "g_entity_type": "S-Corporation",
+            "g_sic_code": "3499",
+            "g_years_in_business": "17",
+            "g_street": "4100 Fort St",
+            "g_city": "Detroit",
+            "g_state": "MI",
+            "g_zip": "48209",
+            "wc_state": "MI",
+            "wc_full_time": "44",
+            "wc_part_time": "9",
+            "wc_owner_included": "Yes",
+            "wc_annual_payroll": "2450000",
+            "wc_class_code1": "3066",
+            "wc_class_desc1": "Sheet Metal Work",
+            "wc_payroll1": "1980000",
+            "wc_class_code2": "8810",
+            "wc_class_desc2": "Clerical Office Employees",
+            "wc_payroll2": "470000",
+            "wc_mod_factor": "1.12",
+            "wc_prior_carrier": "Accident Fund",
+            "wc_policy_limit": "1000/1000/1000",
+            "g_num_losses": "2",
+            "g_loss1_year": "2022",
+            "g_loss1_type": "Laceration",
+            "g_loss1_amount": "22600",
+            "g_loss2_year": "2024",
+            "g_loss2_type": "Back Strain",
+            "g_loss2_amount": "14800",
+            "wc_safety_program": "Yes",
+            "wc_return_to_work": "No",
+            "wc_subcontractors": "No",
+            "wc_labor_leasing": "No"
+        }
+    }
+],
+  cgl: [
+    {
+        "id": "cgl-easy-1",
+        "line": "General Liability",
+        "difficulty": "easy",
+        "name": "Easy \u2014 PixelPoint Photography",
+        "description": "Low-hazard photography studio requesting CGL with standard limits and no prior claims.",
+        "fields": 28,
+        "timeEstimate": "10\u201315 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 PixelPoint Photography",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "PixelPoint Photography LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Maya Bennett, Owner"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(704) 555-0157"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "maya@pixelpointphoto.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "56-4471902"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "7221 \u2014 Photographic Studios"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "3 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "221 Camden Rd, Charlotte, NC 28203"
+                },
+                {
+                    "label": "Operations",
+                    "value": "Portrait and event photography studio"
+                },
+                {
+                    "label": "Exposure Basis",
+                    "value": "Sales"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$310,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$80,000"
+                },
+                {
+                    "label": "Subcontractor Costs",
+                    "value": "$0"
+                },
+                {
+                    "label": "Limits",
+                    "value": "Each Occurrence $1,000,000; Aggregate $2,000,000"
+                },
+                {
+                    "label": "Products/Completed Ops",
+                    "value": "$2,000,000"
+                },
+                {
+                    "label": "Med Pay",
+                    "value": "$5,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$0"
+                },
+                {
+                    "label": "Prior Losses",
+                    "value": "0"
+                }
+            ],
+            "distractors": [
+                "Professional liability for photo editing is not requested.",
+                "Camera equipment coverage belongs to inland marine, not CGL."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "PixelPoint Photography LLC",
+            "g_contact_name": "Maya Bennett",
+            "g_phone": "(704) 555-0157",
+            "g_email": "maya@pixelpointphoto.com",
+            "g_fein": "56-4471902",
+            "g_entity_type": "LLC",
+            "g_sic_code": "7221",
+            "g_years_in_business": "3",
+            "g_street": "221 Camden Rd",
+            "g_city": "Charlotte",
+            "g_state": "NC",
+            "g_zip": "28203",
+            "cgl_business_description": "Portrait and event photography studio",
+            "cgl_exposure_basis": "Sales",
+            "cgl_annual_revenue": "310000",
+            "cgl_payroll": "80000",
+            "cgl_subcontractor_costs": "0",
+            "cgl_occurrence_limit": "1000000",
+            "cgl_aggregate_limit": "2000000",
+            "cgl_products_completed": "2000000",
+            "cgl_med_pay": "5000",
+            "cgl_deductible": "0",
+            "g_num_losses": "0",
+            "cgl_contractual_liability": "No",
+            "cgl_professional_exposure": "No",
+            "cgl_primary_noncontrib": "No",
+            "cgl_waiver_subrogation": "No",
+            "cgl_prior_cancel": "No"
+        }
+    },
+    {
+        "id": "cgl-normal-1",
+        "line": "General Liability",
+        "difficulty": "normal",
+        "name": "Normal \u2014 HarborTech Electric",
+        "description": "Electrical contractor with payroll/subcontractor exposures, contract requirements, and one liability loss.",
+        "fields": 32,
+        "timeEstimate": "15\u201320 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 HarborTech Electric",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "HarborTech Electric Inc."
+                },
+                {
+                    "label": "Contact",
+                    "value": "Victor Chen, President"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(206) 555-0349"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "vchen@harbortechelectric.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "91-3057188"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "Corporation"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "1731 \u2014 Electrical Work"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "12 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "804 Alaskan Way S, Seattle, WA 98104"
+                },
+                {
+                    "label": "Operations",
+                    "value": "Commercial electrical installation and service"
+                },
+                {
+                    "label": "Exposure Basis",
+                    "value": "Payroll"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$2,300,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$940,000"
+                },
+                {
+                    "label": "Subcontractor Costs",
+                    "value": "$180,000"
+                },
+                {
+                    "label": "Limits",
+                    "value": "Each Occurrence $1,000,000; Aggregate $2,000,000"
+                },
+                {
+                    "label": "Products/Completed Ops",
+                    "value": "$2,000,000"
+                },
+                {
+                    "label": "Med Pay",
+                    "value": "$10,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$1,000"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "Portside Property Group LLC"
+                },
+                {
+                    "label": "Prior Loss",
+                    "value": "2022 \u2014 Property Damage, $16,500 paid"
+                }
+            ],
+            "distractors": [
+                "Do not classify as general contractor; applicant performs electrical work.",
+                "Commercial Auto is separate; do not add vehicles here."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "HarborTech Electric Inc.",
+            "g_contact_name": "Victor Chen",
+            "g_phone": "(206) 555-0349",
+            "g_email": "vchen@harbortechelectric.com",
+            "g_fein": "91-3057188",
+            "g_entity_type": "Corporation",
+            "g_sic_code": "1731",
+            "g_years_in_business": "12",
+            "g_street": "804 Alaskan Way S",
+            "g_city": "Seattle",
+            "g_state": "WA",
+            "g_zip": "98104",
+            "cgl_business_description": "Commercial electrical installation and service",
+            "cgl_exposure_basis": "Payroll",
+            "cgl_annual_revenue": "2300000",
+            "cgl_payroll": "940000",
+            "cgl_subcontractor_costs": "180000",
+            "cgl_occurrence_limit": "1000000",
+            "cgl_aggregate_limit": "2000000",
+            "cgl_products_completed": "2000000",
+            "cgl_med_pay": "10000",
+            "cgl_deductible": "1000",
+            "g_additional_insured": "Portside Property Group LLC",
+            "g_num_losses": "1",
+            "g_loss1_year": "2022",
+            "g_loss1_type": "Property Damage",
+            "g_loss1_amount": "16500",
+            "cgl_contractual_liability": "Yes",
+            "cgl_professional_exposure": "No",
+            "cgl_primary_noncontrib": "Yes",
+            "cgl_waiver_subrogation": "Yes",
+            "cgl_prior_cancel": "No"
+        }
+    },
+    {
+        "id": "cgl-hard-1",
+        "line": "General Liability",
+        "difficulty": "hard",
+        "name": "Hard \u2014 FreshPack Foods",
+        "description": "Food product distributor with products-completed operations, multiple certificates, and two prior product-related claims.",
+        "fields": 35,
+        "timeEstimate": "20\u201330 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 FreshPack Foods",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "FreshPack Foods Distribution LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Jillian Moore, Risk Manager"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(414) 555-0788"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "jmoore@freshpackfoods.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "39-8820174"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "5141 \u2014 Groceries, General Line"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "14 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "9800 W Heather Ave, Milwaukee, WI 53224"
+                },
+                {
+                    "label": "Operations",
+                    "value": "Wholesale distribution of packaged refrigerated foods"
+                },
+                {
+                    "label": "Exposure Basis",
+                    "value": "Sales"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$8,700,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$1,200,000"
+                },
+                {
+                    "label": "Subcontractor Costs",
+                    "value": "$95,000"
+                },
+                {
+                    "label": "Limits",
+                    "value": "Each Occurrence $2,000,000; Aggregate $4,000,000"
+                },
+                {
+                    "label": "Products/Completed Ops",
+                    "value": "$4,000,000"
+                },
+                {
+                    "label": "Med Pay",
+                    "value": "$10,000"
+                },
+                {
+                    "label": "Deductible",
+                    "value": "$5,000"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "Metro Grocery Group; Lakefront Logistics Park"
+                },
+                {
+                    "label": "Loss 1",
+                    "value": "2021 \u2014 Products Liability, $42,000 paid"
+                },
+                {
+                    "label": "Loss 2",
+                    "value": "2023 \u2014 Premises BI, $31,500 paid"
+                }
+            ],
+            "distractors": [
+                "Do not include refrigerated truck cargo; this is GL only.",
+                "Lakefront Logistics Park is an additional insured, not a mortgagee."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "FreshPack Foods Distribution LLC",
+            "g_contact_name": "Jillian Moore",
+            "g_phone": "(414) 555-0788",
+            "g_email": "jmoore@freshpackfoods.com",
+            "g_fein": "39-8820174",
+            "g_entity_type": "LLC",
+            "g_sic_code": "5141",
+            "g_years_in_business": "14",
+            "g_street": "9800 W Heather Ave",
+            "g_city": "Milwaukee",
+            "g_state": "WI",
+            "g_zip": "53224",
+            "cgl_business_description": "Wholesale distribution of packaged refrigerated foods",
+            "cgl_exposure_basis": "Sales",
+            "cgl_annual_revenue": "8700000",
+            "cgl_payroll": "1200000",
+            "cgl_subcontractor_costs": "95000",
+            "cgl_occurrence_limit": "2000000",
+            "cgl_aggregate_limit": "4000000",
+            "cgl_products_completed": "4000000",
+            "cgl_med_pay": "10000",
+            "cgl_deductible": "5000",
+            "g_additional_insured": "Metro Grocery Group; Lakefront Logistics Park",
+            "g_num_losses": "2",
+            "g_loss1_year": "2021",
+            "g_loss1_type": "Products Liability",
+            "g_loss1_amount": "42000",
+            "g_loss2_year": "2023",
+            "g_loss2_type": "Premises BI",
+            "g_loss2_amount": "31500",
+            "cgl_contractual_liability": "Yes",
+            "cgl_professional_exposure": "No",
+            "cgl_primary_noncontrib": "Yes",
+            "cgl_waiver_subrogation": "Yes",
+            "cgl_prior_cancel": "No"
+        }
+    }
+],
+  umbrella: [
+    {
+        "id": "umb-easy-1",
+        "line": "Umbrella",
+        "difficulty": "easy",
+        "name": "Easy \u2014 CleanSweep Janitorial",
+        "description": "Small janitorial contractor requesting $1M umbrella over GL only, no auto fleet, clean losses.",
+        "fields": 31,
+        "timeEstimate": "10\u201315 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 CleanSweep Janitorial",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "CleanSweep Janitorial LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Hannah Brooks, Owner"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(615) 555-0166"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "hannah@cleansweepjanitorial.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "62-4081991"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "7349 \u2014 Building Cleaning Services"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "5 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "310 Commerce St, Nashville, TN 37201"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$680,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$310,000"
+                },
+                {
+                    "label": "Scheduled Autos",
+                    "value": "0"
+                },
+                {
+                    "label": "Umbrella Limit",
+                    "value": "$1,000,000"
+                },
+                {
+                    "label": "SIR",
+                    "value": "$0"
+                },
+                {
+                    "label": "Underlying GL",
+                    "value": "LAVA Liability Shield, GL-2026-1188, $1M occ / $2M agg"
+                },
+                {
+                    "label": "Underlying Auto",
+                    "value": "None"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "None"
+                },
+                {
+                    "label": "Underlying Premium",
+                    "value": "$4,800"
+                },
+                {
+                    "label": "Prior Losses",
+                    "value": "0"
+                }
+            ],
+            "distractors": [
+                "Do not add auto underlying coverage; company uses employee personal vehicles only.",
+                "Bonding was mentioned but is not umbrella coverage."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "CleanSweep Janitorial LLC",
+            "g_contact_name": "Hannah Brooks",
+            "g_phone": "(615) 555-0166",
+            "g_email": "hannah@cleansweepjanitorial.com",
+            "g_fein": "62-4081991",
+            "g_entity_type": "LLC",
+            "g_sic_code": "7349",
+            "g_years_in_business": "5",
+            "g_street": "310 Commerce St",
+            "g_city": "Nashville",
+            "g_state": "TN",
+            "g_zip": "37201",
+            "umb_annual_revenue": "680000",
+            "umb_payroll": "310000",
+            "umb_vehicle_count": "0",
+            "umb_limit": "1000000",
+            "umb_retention": "0",
+            "umb_gl_carrier": "LAVA Liability Shield",
+            "umb_gl_policy": "GL-2026-1188",
+            "umb_gl_occurrence_limit": "1000000",
+            "umb_gl_aggregate_limit": "2000000",
+            "umb_auto_carrier": "None",
+            "umb_auto_policy": "None",
+            "umb_auto_limit": "None",
+            "umb_el_limit": "None",
+            "umb_underlying_expiring_premium": "4800",
+            "g_num_losses": "0",
+            "umb_follow_form": "Yes",
+            "umb_excluded_operations": "No",
+            "umb_prior_excess_losses": "No",
+            "umb_foreign_exposure": "No"
+        }
+    },
+    {
+        "id": "umb-normal-1",
+        "line": "Umbrella",
+        "difficulty": "normal",
+        "name": "Normal \u2014 StoneBridge Contractors",
+        "description": "Contractor requesting $2M umbrella over GL, Auto, and Employers Liability with certificates required.",
+        "fields": 35,
+        "timeEstimate": "15\u201320 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 StoneBridge Contractors",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "StoneBridge Contractors Inc."
+                },
+                {
+                    "label": "Contact",
+                    "value": "Mason Lee, CFO"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(303) 555-0460"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "mlee@stonebridgecontractors.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "84-2671109"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "Corporation"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "1521 \u2014 General Contractors"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "10 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "4550 Brighton Blvd, Denver, CO 80216"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$3,900,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$1,250,000"
+                },
+                {
+                    "label": "Scheduled Autos",
+                    "value": "6"
+                },
+                {
+                    "label": "Umbrella Limit",
+                    "value": "$2,000,000"
+                },
+                {
+                    "label": "SIR",
+                    "value": "$10,000"
+                },
+                {
+                    "label": "Underlying GL",
+                    "value": "Pinnacle Commercial Liability, CGL-78551, $1M occ / $2M agg"
+                },
+                {
+                    "label": "Underlying Auto",
+                    "value": "Atlas Commercial Auto, CA-34421, $1M CSL"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "500/500/500"
+                },
+                {
+                    "label": "Underlying Premium",
+                    "value": "$22,500"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "Summit Retail Developers LLC"
+                },
+                {
+                    "label": "Prior Loss",
+                    "value": "2022 \u2014 Premises BI, $27,000 paid"
+                }
+            ],
+            "distractors": [
+                "Do not enter the umbrella limit as the GL occurrence limit.",
+                "The certificate holder is additional insured, not loss payee."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "StoneBridge Contractors Inc.",
+            "g_contact_name": "Mason Lee",
+            "g_phone": "(303) 555-0460",
+            "g_email": "mlee@stonebridgecontractors.com",
+            "g_fein": "84-2671109",
+            "g_entity_type": "Corporation",
+            "g_sic_code": "1521",
+            "g_years_in_business": "10",
+            "g_street": "4550 Brighton Blvd",
+            "g_city": "Denver",
+            "g_state": "CO",
+            "g_zip": "80216",
+            "umb_annual_revenue": "3900000",
+            "umb_payroll": "1250000",
+            "umb_vehicle_count": "6",
+            "umb_limit": "2000000",
+            "umb_retention": "10000",
+            "umb_gl_carrier": "Pinnacle Commercial Liability",
+            "umb_gl_policy": "CGL-78551",
+            "umb_gl_occurrence_limit": "1000000",
+            "umb_gl_aggregate_limit": "2000000",
+            "umb_auto_carrier": "Atlas Commercial Auto",
+            "umb_auto_policy": "CA-34421",
+            "umb_auto_limit": "1000000",
+            "umb_el_limit": "500/500/500",
+            "umb_underlying_expiring_premium": "22500",
+            "g_additional_insured": "Summit Retail Developers LLC",
+            "g_num_losses": "1",
+            "g_loss1_year": "2022",
+            "g_loss1_type": "Premises BI",
+            "g_loss1_amount": "27000",
+            "umb_follow_form": "Yes",
+            "umb_excluded_operations": "No",
+            "umb_prior_excess_losses": "No",
+            "umb_foreign_exposure": "No"
+        }
+    },
+    {
+        "id": "umb-hard-1",
+        "line": "Umbrella",
+        "difficulty": "hard",
+        "name": "Hard \u2014 Apex Components Group",
+        "description": "Manufacturing and distribution account requesting $5M umbrella with GL, Auto, and EL underlying schedules plus prior excess concern.",
+        "fields": 38,
+        "timeEstimate": "20\u201330 min",
+        "brief": {
+            "title": "Client Intake Sheet \u2014 Apex Components Group",
+            "items": [
+                {
+                    "label": "Business Name",
+                    "value": "Apex Components Group LLC"
+                },
+                {
+                    "label": "Contact",
+                    "value": "Renee Walters, Risk Manager"
+                },
+                {
+                    "label": "Phone",
+                    "value": "(404) 555-0891"
+                },
+                {
+                    "label": "Business Email",
+                    "value": "rwalters@apexcomponents.com"
+                },
+                {
+                    "label": "FEIN",
+                    "value": "58-9971204"
+                },
+                {
+                    "label": "Legal Entity",
+                    "value": "LLC"
+                },
+                {
+                    "label": "SIC Code",
+                    "value": "3679 \u2014 Electronic Components"
+                },
+                {
+                    "label": "Years in Business",
+                    "value": "19 years"
+                },
+                {
+                    "label": "Location",
+                    "value": "2100 Fulton Industrial Blvd, Atlanta, GA 30336"
+                },
+                {
+                    "label": "Annual Revenue",
+                    "value": "$18,500,000"
+                },
+                {
+                    "label": "Payroll",
+                    "value": "$4,600,000"
+                },
+                {
+                    "label": "Scheduled Autos",
+                    "value": "14"
+                },
+                {
+                    "label": "Umbrella Limit",
+                    "value": "$5,000,000"
+                },
+                {
+                    "label": "SIR",
+                    "value": "$25,000"
+                },
+                {
+                    "label": "Underlying GL",
+                    "value": "Northstar Liability Specialty, GL-99201, $2M occ / $4M agg"
+                },
+                {
+                    "label": "Underlying Auto",
+                    "value": "Summit Transportation Casualty, CA-88002, $1M CSL"
+                },
+                {
+                    "label": "Employers Liability",
+                    "value": "1000/1000/1000"
+                },
+                {
+                    "label": "Underlying Premium",
+                    "value": "$96,000"
+                },
+                {
+                    "label": "Additional Insured",
+                    "value": "GlobalTech Retailers Inc."
+                },
+                {
+                    "label": "Loss 1",
+                    "value": "2021 \u2014 Products Liability, $85,000 paid"
+                },
+                {
+                    "label": "Loss 2",
+                    "value": "2023 \u2014 Auto Liability, $61,000 paid"
+                }
+            ],
+            "distractors": [
+                "Foreign sales exist but no foreign operations; answer foreign exposure carefully.",
+                "Do not enter $5M as the underlying GL aggregate."
+            ]
+        },
+        "correctAnswers": {
+            "g_applicant_name": "Apex Components Group LLC",
+            "g_contact_name": "Renee Walters",
+            "g_phone": "(404) 555-0891",
+            "g_email": "rwalters@apexcomponents.com",
+            "g_fein": "58-9971204",
+            "g_entity_type": "LLC",
+            "g_sic_code": "3679",
+            "g_years_in_business": "19",
+            "g_street": "2100 Fulton Industrial Blvd",
+            "g_city": "Atlanta",
+            "g_state": "GA",
+            "g_zip": "30336",
+            "umb_annual_revenue": "18500000",
+            "umb_payroll": "4600000",
+            "umb_vehicle_count": "14",
+            "umb_limit": "5000000",
+            "umb_retention": "25000",
+            "umb_gl_carrier": "Northstar Liability Specialty",
+            "umb_gl_policy": "GL-99201",
+            "umb_gl_occurrence_limit": "2000000",
+            "umb_gl_aggregate_limit": "4000000",
+            "umb_auto_carrier": "Summit Transportation Casualty",
+            "umb_auto_policy": "CA-88002",
+            "umb_auto_limit": "1000000",
+            "umb_el_limit": "1000/1000/1000",
+            "umb_underlying_expiring_premium": "96000",
+            "g_additional_insured": "GlobalTech Retailers Inc.",
+            "g_num_losses": "2",
+            "g_loss1_year": "2021",
+            "g_loss1_type": "Products Liability",
+            "g_loss1_amount": "85000",
+            "g_loss2_year": "2023",
+            "g_loss2_type": "Auto Liability",
+            "g_loss2_amount": "61000",
+            "umb_follow_form": "Yes",
+            "umb_excluded_operations": "No",
+            "umb_prior_excess_losses": "Yes",
+            "umb_foreign_exposure": "No"
+        }
+    }
+]
+
 };

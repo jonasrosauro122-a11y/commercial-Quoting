@@ -146,8 +146,10 @@ const FIELD_KEY_MAP = {
 function fieldKeyForAnswer(key, line) {
   const map = FIELD_KEY_MAP[line] || {};
   if (map[key]) return map[key];
-  if (key.startsWith('p_') || key.startsWith('a_')) return key;
-  return line === 'Property' ? `p_${key}` : `a_${key}`;
+  if (/^(p|a|g|bop|wc|cgl|umb)_/.test(key)) return key;
+  if (line === 'Property') return `p_${key}`;
+  if (line === 'Auto') return `a_${key}`;
+  return key;
 }
 function submittedValueForAnswer(key, line, submitted) {
   const primary = fieldKeyForAnswer(key, line);
@@ -170,19 +172,44 @@ function fmtFullDate(date) {
   return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 function carrierNameForScenario(scenario) {
-  if (scenario.line === 'Property') {
+  const line = scenario.line;
+  if (line === 'Property') {
     if (scenario.difficulty === 'hard') return 'Northstar Commercial Indemnity';
     if (scenario.difficulty === 'normal') return 'Pinnacle Property & Casualty';
     return 'LAVA Shield Mutual';
   }
-  if (scenario.difficulty === 'hard') return 'Summit Transportation Casualty';
-  if (scenario.difficulty === 'normal') return 'Atlas Commercial Auto';
-  return 'LAVA Fleet Guard';
+  if (line === 'Auto') {
+    if (scenario.difficulty === 'hard') return 'Summit Transportation Casualty';
+    if (scenario.difficulty === 'normal') return 'Atlas Commercial Auto';
+    return 'LAVA Fleet Guard';
+  }
+  if (line === 'BOP') return scenario.difficulty === 'hard' ? 'RedRock Main Street Package' : scenario.difficulty === 'normal' ? 'Pinnacle Businessowners Select' : 'LAVA MainStreet BOP';
+  if (line === 'Workers Compensation') return scenario.difficulty === 'hard' ? 'Summit Employers Assurance' : scenario.difficulty === 'normal' ? 'Atlas WorkComp Select' : 'LAVA Employers Guard';
+  if (line === 'General Liability') return scenario.difficulty === 'hard' ? 'Northstar Liability Specialty' : scenario.difficulty === 'normal' ? 'Pinnacle Commercial Liability' : 'LAVA Liability Shield';
+  if (line === 'Umbrella') return scenario.difficulty === 'hard' ? 'Summit Excess Casualty' : scenario.difficulty === 'normal' ? 'Atlas Umbrella Select' : 'LAVA Excess Guard';
+  return 'LAVA Commercial Training Carrier';
 }
 function stateLabel(code) {
   const row = US_STATES.find(s => s.value === code || s.label === code);
   return row ? row.value : code;
 }
+
+
+/* ── COMMERCIAL POLICY LINE HELPERS ── */
+const POLICY_LINE_META = {
+  Property: { route: 'property-select', collection: 'property', quotePage: 'property-quote', label: 'Commercial Property', code: 'CP', badge: 'property' },
+  Auto: { route: 'auto-select', collection: 'auto', quotePage: 'auto-quote', label: 'Commercial Auto', code: 'CA', badge: 'auto' },
+  BOP: { route: 'bop-select', collection: 'bop', quotePage: 'generic-quote', label: "Business Owner's Policy", code: 'BOP', badge: 'bop' },
+  'Workers Compensation': { route: 'wc-select', collection: 'workersComp', quotePage: 'generic-quote', label: 'Workers Compensation', code: 'WC', badge: 'wc' },
+  'General Liability': { route: 'cgl-select', collection: 'cgl', quotePage: 'generic-quote', label: 'Commercial General Liability', code: 'CGL', badge: 'cgl' },
+  Umbrella: { route: 'umbrella-select', collection: 'umbrella', quotePage: 'generic-quote', label: 'Commercial Umbrella', code: 'UMB', badge: 'umbrella' },
+};
+function policyMeta(line) { return POLICY_LINE_META[line] || { route: 'dashboard', collection: '', quotePage: 'generic-quote', label: line, code: compact(line).slice(0,3).toUpperCase(), badge: 'policy' }; }
+function allScenarios() { return Object.values(window.SCENARIOS || {}).flat(); }
+function scenarioCollection(key) { return (window.SCENARIOS && window.SCENARIOS[key]) || []; }
+function policySelectRoute(line) { return policyMeta(line).route; }
+function policyBadgeClass(line) { return policyMeta(line).badge; }
+function quoteCodeForLine(line) { return policyMeta(line).code; }
 
 /* ── MODAL ── */
 function showModal(title, body, buttons) {
@@ -219,8 +246,13 @@ function navigate(page) {
     dashboard: 'sec-dashboard',
     'property-select': 'sec-property-select',
     'auto-select': 'sec-auto-select',
+    'bop-select': 'sec-bop-select',
+    'wc-select': 'sec-wc-select',
+    'cgl-select': 'sec-cgl-select',
+    'umbrella-select': 'sec-umbrella-select',
     'property-quote': 'sec-property-quote',
     'auto-quote': 'sec-auto-quote',
+    'generic-quote': 'sec-generic-quote',
     results: 'sec-results',
     history: 'sec-history',
     admin: 'sec-admin',
@@ -229,8 +261,13 @@ function navigate(page) {
     dashboard: 'Dashboard',
     'property-select': 'Commercial Property — Select Scenario',
     'auto-select': 'Commercial Auto — Select Scenario',
+    'bop-select': 'BOP — Select Scenario',
+    'wc-select': 'Workers Compensation — Select Scenario',
+    'cgl-select': 'Commercial General Liability — Select Scenario',
+    'umbrella-select': 'Commercial Umbrella — Select Scenario',
     'property-quote': 'Commercial Property — Quote Form',
     'auto-quote': 'Commercial Auto — Quote Form',
+    'generic-quote': 'Commercial Policy — Quote Form',
     results: 'Simulation Results',
     history: 'My Quote History',
     admin: 'Trainer Dashboard',
@@ -250,6 +287,10 @@ function navigate(page) {
   if (page === 'dashboard') refreshDashboard();
   if (page === 'property-select') renderPropertyScenarios();
   if (page === 'auto-select') renderAutoScenarios();
+  if (page === 'bop-select') renderBopScenarios();
+  if (page === 'wc-select') renderWorkersCompScenarios();
+  if (page === 'cgl-select') renderCglScenarios();
+  if (page === 'umbrella-select') renderUmbrellaScenarios();
   if (page === 'history') renderHistory();
   if (page === 'admin') renderAdmin();
 
@@ -339,8 +380,7 @@ function refreshDashboard() {
 
 /* ── SCENARIO GRIDS ── */
 function getScenarioById(id) {
-  const allScenarios = [...window.SCENARIOS.property, ...window.SCENARIOS.auto];
-  return allScenarios.find(s => s.id === id);
+  return allScenarios().find(s => s.id === id);
 }
 
 function renderScenarioGrid(containerId, scenarios) {
@@ -349,7 +389,7 @@ function renderScenarioGrid(containerId, scenarios) {
     <div class="scenario-card ${s.difficulty}" onclick="previewScenario('${s.id}')" role="button" tabindex="0" aria-label="Preview ${escHtml(s.name)}">
       <div class="scenario-card-top">
         <span class="badge ${s.difficulty}">${s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)}</span>
-        <span class="badge ${s.line === 'Property' ? 'property' : 'auto'}">${s.line}</span>
+        <span class="badge ${policyBadgeClass(s.line)}">${s.line}</span>
       </div>
       <div class="scenario-card-name">${escHtml(s.name.replace(/^(Easy|Normal|Hard) — /, ''))}</div>
       <div class="scenario-card-desc">${escHtml(s.description)}</div>
@@ -364,8 +404,12 @@ function renderScenarioGrid(containerId, scenarios) {
       </div>
     </div>`).join('');
 }
-function renderPropertyScenarios() { renderScenarioGrid('property-scenario-grid', window.SCENARIOS.property); }
-function renderAutoScenarios() { renderScenarioGrid('auto-scenario-grid', window.SCENARIOS.auto); }
+function renderPropertyScenarios() { renderScenarioGrid('property-scenario-grid', scenarioCollection('property')); }
+function renderAutoScenarios() { renderScenarioGrid('auto-scenario-grid', scenarioCollection('auto')); }
+function renderBopScenarios() { renderScenarioGrid('bop-scenario-grid', scenarioCollection('bop')); }
+function renderWorkersCompScenarios() { renderScenarioGrid('wc-scenario-grid', scenarioCollection('workersComp')); }
+function renderCglScenarios() { renderScenarioGrid('cgl-scenario-grid', scenarioCollection('cgl')); }
+function renderUmbrellaScenarios() { renderScenarioGrid('umbrella-scenario-grid', scenarioCollection('umbrella')); }
 
 function scenarioPacketFileName(scenario) {
   return `${scenario.line}-${scenario.name}`
@@ -472,8 +516,7 @@ function previewScenario(id) {
 
 /* ── START SCENARIO ── */
 function startScenario(id) {
-  const allScenarios = [...window.SCENARIOS.property, ...window.SCENARIOS.auto];
-  const scenario = allScenarios.find(s => s.id === id);
+  const scenario = getScenarioById(id);
   if (!scenario) return;
 
   state.currentScenario = scenario;
@@ -486,10 +529,14 @@ function startScenario(id) {
     buildPropertyForm(scenario);
     navigate('property-quote');
     startTimer('prop-timer');
-  } else {
+  } else if (scenario.line === 'Auto') {
     buildAutoForm(scenario);
     navigate('auto-quote');
     startTimer('auto-timer');
+  } else {
+    buildGenericPolicyForm(scenario);
+    navigate('generic-quote');
+    startTimer('generic-timer');
   }
 }
 
@@ -885,6 +932,180 @@ function buildAutoForm(scenario) {
   setupFormNav(prefix);
 }
 
+
+/* ── GENERIC COMMERCIAL POLICY FORM BUILDER ── */
+function textareaField(id, label, placeholder, required) {
+  return `<div class="form-group"><label for="${id}">${escHtml(label)}${required ? ' <span style="color:var(--danger)">*</span>' : ''}</label>
+    <textarea id="${id}" name="${id}" placeholder="${escHtml(placeholder || '')}" ${required ? 'required' : ''}></textarea>
+    <span class="field-error" id="err-${id}"></span></div>`;
+}
+function moneyField(id, label, placeholder, required = true) { return textField(id, label, placeholder || 'Enter amount without $ or commas', required); }
+function genericField(def) {
+  const [id, label, type, options, required = true] = def;
+  if (type === 'select') return selectField(id, label, options || [], required);
+  if (type === 'yesno') return yesNoField(id, label, required);
+  if (type === 'textarea') return textareaField(id, label, options || '', required);
+  if (type === 'money') return moneyField(id, label, options || 'e.g. 250000', required);
+  return textField(id, label, options || '', required);
+}
+function renderGenericFields(fields) {
+  return fields.map((f, i) => {
+    const html = genericField(f);
+    return html;
+  }).join('');
+}
+const GENERIC_SHARED_APPLICANT_FIELDS = [
+  ['g_applicant_name', 'Legal Business Name', 'text', 'Exact legal name on policy', true],
+  ['g_dba', 'DBA / Trade Name', 'text', 'If none, enter None', false],
+  ['g_contact_name', 'Primary Contact Name', 'text', 'Full name', true],
+  ['g_phone', 'Phone Number', 'text', '(xxx) xxx-xxxx', true],
+  ['g_email', 'Business Email', 'text', 'email@domain.com', true],
+  ['g_fein', 'FEIN / Tax ID', 'text', 'XX-XXXXXXX', true],
+  ['g_entity_type', 'Legal Entity Type', 'select', ['Sole Proprietor','LLC','Corporation','S-Corporation','Partnership','Non-Profit'], true],
+];
+const GENERIC_SHARED_LOCATION_FIELDS = [
+  ['g_sic_code', 'SIC / NAICS Code', 'text', 'Enter code exactly from scenario', true],
+  ['g_years_in_business', 'Years in Business', 'text', 'Number of years', true],
+  ['g_street', 'Primary Location Street Address', 'text', '123 Main St', true],
+  ['g_city', 'City', 'text', 'City', true],
+  ['g_state', 'State', 'select', US_STATES, true],
+  ['g_zip', 'ZIP Code', 'text', '5-digit ZIP', true],
+];
+const GENERIC_LOSS_FIELDS = [
+  ['g_num_losses', 'Number of Prior Losses', 'select', ['0','1','2','3','4','5+'], true],
+  ['g_loss1_year', 'Loss 1 Year', 'text', 'YYYY', false],
+  ['g_loss1_type', 'Loss 1 Type', 'text', 'e.g. Slip and Fall', false],
+  ['g_loss1_amount', 'Loss 1 Amount Paid ($)', 'money', 'e.g. 12500', false],
+  ['g_loss2_year', 'Loss 2 Year', 'text', 'YYYY', false],
+  ['g_loss2_type', 'Loss 2 Type', 'text', 'e.g. Theft', false],
+  ['g_loss2_amount', 'Loss 2 Amount Paid ($)', 'money', 'e.g. 8400', false],
+];
+const GENERIC_INTEREST_FIELDS = [
+  ['g_mortgagee', 'Mortgagee / Lender', 'text', 'Entity name or None', false],
+  ['g_loss_payee', 'Loss Payee', 'text', 'Entity name or None', false],
+  ['g_additional_insured', 'Additional Insured / Certificate Holder', 'text', 'Entity name or None', false],
+];
+const GENERIC_POLICY_FORM_DEFS = {
+  BOP: [
+    { title: 'Applicant Information', fields: GENERIC_SHARED_APPLICANT_FIELDS },
+    { title: 'Business Operations & Location', fields: GENERIC_SHARED_LOCATION_FIELDS.concat([
+      ['bop_business_type', 'Business Type / Operations', 'select', ['Bakery / Food Service','Retail Store','Professional Office','Beauty Salon','Printer / Copy Shop','Medical Office','Contractor Office'], true],
+      ['bop_square_footage', 'Occupied Square Footage', 'text', 'e.g. 1800', true],
+    ])},
+    { title: 'BOP Property & Liability Coverages', fields: [
+      ['bop_annual_revenue', 'Annual Gross Sales / Revenue ($)', 'money', 'e.g. 450000', true],
+      ['bop_payroll', 'Annual Payroll ($)', 'money', 'e.g. 145000', true],
+      ['bop_building_limit', 'Building Limit ($)', 'money', 'Owned building only; enter 0 if tenant', true],
+      ['bop_bpp_limit', 'Business Personal Property Limit ($)', 'money', 'e.g. 75000', true],
+      ['bop_business_income', 'Business Income / Extra Expense Limit ($)', 'money', 'e.g. 50000', true],
+      ['bop_gl_limit', 'GL Limit', 'select', ['300000/600000','500000/1000000','1000000/2000000','2000000/4000000'], true],
+      ['bop_deductible', 'Property Deductible ($)', 'select', ['500','1000','2500','5000','10000'], true],
+    ]},
+    { title: 'Additional Interests & Loss History', fields: GENERIC_INTEREST_FIELDS.concat(GENERIC_LOSS_FIELDS) },
+    { title: 'BOP Underwriting Questions', fields: [
+      ['bop_uw_cooking', 'Any cooking, frying, or baking operations?', 'yesno', null, true],
+      ['bop_uw_alarm', 'Central fire/burglar alarm?', 'select', ['None','Local Only','Central Monitored'], true],
+      ['bop_uw_prior_cancel', 'Any prior carrier cancellation/non-renewal?', 'yesno', null, true],
+      ['bop_uw_subcontractors', 'Any subcontracted operations?', 'yesno', null, true],
+    ]},
+  ],
+  'Workers Compensation': [
+    { title: 'Applicant Information', fields: GENERIC_SHARED_APPLICANT_FIELDS },
+    { title: 'Operations & State Exposure', fields: GENERIC_SHARED_LOCATION_FIELDS.concat([
+      ['wc_state', 'Primary Workers Comp State', 'select', US_STATES, true],
+      ['wc_full_time', 'Number of Full-Time Employees', 'text', 'e.g. 12', true],
+      ['wc_part_time', 'Number of Part-Time Employees', 'text', 'e.g. 4', true],
+      ['wc_owner_included', 'Owners / Officers Included?', 'yesno', null, true],
+    ])},
+    { title: 'Payroll & Class Codes', fields: [
+      ['wc_annual_payroll', 'Total Annual Payroll ($)', 'money', 'e.g. 625000', true],
+      ['wc_class_code1', 'Class Code 1', 'text', 'e.g. 8810', true],
+      ['wc_class_desc1', 'Class Code 1 Description', 'text', 'Clerical Office Employees', true],
+      ['wc_payroll1', 'Class Code 1 Payroll ($)', 'money', 'e.g. 140000', true],
+      ['wc_class_code2', 'Class Code 2', 'text', 'Enter None if not applicable', true],
+      ['wc_class_desc2', 'Class Code 2 Description', 'text', 'Enter None if not applicable', true],
+      ['wc_payroll2', 'Class Code 2 Payroll ($)', 'money', 'Enter 0 if not applicable', true],
+      ['wc_mod_factor', 'Experience Modification Factor', 'text', 'e.g. 0.94', true],
+      ['wc_prior_carrier', 'Prior Carrier', 'text', 'Carrier name or None', true],
+      ['wc_policy_limit', 'Employers Liability Limit', 'select', ['100/500/100','500/500/500','1000/1000/1000'], true],
+    ]},
+    { title: 'Loss History', fields: GENERIC_LOSS_FIELDS },
+    { title: 'Workers Comp Underwriting', fields: [
+      ['wc_safety_program', 'Written safety program in place?', 'yesno', null, true],
+      ['wc_return_to_work', 'Return-to-work/light duty program?', 'yesno', null, true],
+      ['wc_subcontractors', 'Uses subcontractors or 1099 labor?', 'yesno', null, true],
+      ['wc_labor_leasing', 'Any leased employees or PEO arrangement?', 'yesno', null, true],
+    ]},
+  ],
+  'General Liability': [
+    { title: 'Applicant Information', fields: GENERIC_SHARED_APPLICANT_FIELDS },
+    { title: 'Operations & Exposure Basis', fields: GENERIC_SHARED_LOCATION_FIELDS.concat([
+      ['cgl_business_description', 'Detailed Business Description', 'textarea', 'Describe operations based on scenario', true],
+      ['cgl_exposure_basis', 'Primary Rating Exposure Basis', 'select', ['Sales','Payroll','Area','Units','Admissions','Subcontractor Cost'], true],
+      ['cgl_annual_revenue', 'Annual Gross Sales / Revenue ($)', 'money', 'e.g. 850000', true],
+      ['cgl_payroll', 'Annual Payroll ($)', 'money', 'e.g. 300000', true],
+      ['cgl_subcontractor_costs', 'Annual Subcontractor Costs ($)', 'money', 'e.g. 0', true],
+    ])},
+    { title: 'General Liability Coverages', fields: [
+      ['cgl_occurrence_limit', 'Each Occurrence Limit', 'select', ['300000','500000','1000000','2000000'], true],
+      ['cgl_aggregate_limit', 'General Aggregate Limit', 'select', ['600000','1000000','2000000','4000000'], true],
+      ['cgl_products_completed', 'Products / Completed Operations Aggregate', 'select', ['Excluded','1000000','2000000','4000000'], true],
+      ['cgl_med_pay', 'Medical Payments Limit', 'select', ['Excluded','5000','10000','25000'], true],
+      ['cgl_deductible', 'Liability Deductible / SIR ($)', 'select', ['0','500','1000','2500','5000','10000'], true],
+    ]},
+    { title: 'Additional Interests & Loss History', fields: GENERIC_INTEREST_FIELDS.concat(GENERIC_LOSS_FIELDS) },
+    { title: 'GL Underwriting Questions', fields: [
+      ['cgl_contractual_liability', 'Any written contracts requiring indemnity?', 'yesno', null, true],
+      ['cgl_professional_exposure', 'Any professional advice/design exposure?', 'yesno', null, true],
+      ['cgl_primary_noncontrib', 'Primary and non-contributory required?', 'yesno', null, true],
+      ['cgl_waiver_subrogation', 'Waiver of subrogation required?', 'yesno', null, true],
+      ['cgl_prior_cancel', 'Any prior cancellation/non-renewal?', 'yesno', null, true],
+    ]},
+  ],
+  Umbrella: [
+    { title: 'Applicant Information', fields: GENERIC_SHARED_APPLICANT_FIELDS },
+    { title: 'Operations & Exposure Summary', fields: GENERIC_SHARED_LOCATION_FIELDS.concat([
+      ['umb_annual_revenue', 'Annual Gross Sales / Revenue ($)', 'money', 'e.g. 1500000', true],
+      ['umb_payroll', 'Annual Payroll ($)', 'money', 'e.g. 650000', true],
+      ['umb_vehicle_count', 'Scheduled Auto Count', 'text', 'e.g. 4', true],
+    ])},
+    { title: 'Umbrella Limits & Underlying Schedule', fields: [
+      ['umb_limit', 'Requested Umbrella Limit', 'select', ['1000000','2000000','3000000','5000000','10000000'], true],
+      ['umb_retention', 'Self-Insured Retention ($)', 'select', ['0','10000','25000','50000'], true],
+      ['umb_gl_carrier', 'Underlying GL Carrier', 'text', 'Carrier name', true],
+      ['umb_gl_policy', 'Underlying GL Policy Number', 'text', 'Policy number', true],
+      ['umb_gl_occurrence_limit', 'Underlying GL Each Occurrence', 'select', ['500000','1000000','2000000'], true],
+      ['umb_gl_aggregate_limit', 'Underlying GL Aggregate', 'select', ['1000000','2000000','4000000'], true],
+      ['umb_auto_carrier', 'Underlying Auto Carrier', 'text', 'Carrier name or None', true],
+      ['umb_auto_policy', 'Underlying Auto Policy Number', 'text', 'Policy number or None', true],
+      ['umb_auto_limit', 'Underlying Auto CSL', 'select', ['None','500000','1000000','2000000'], true],
+      ['umb_el_limit', 'Employers Liability Underlying Limit', 'select', ['None','100/500/100','500/500/500','1000/1000/1000'], true],
+      ['umb_underlying_expiring_premium', 'Total Underlying Expiring Premium ($)', 'money', 'e.g. 18500', true],
+    ]},
+    { title: 'Additional Insureds & Loss History', fields: GENERIC_INTEREST_FIELDS.concat(GENERIC_LOSS_FIELDS) },
+    { title: 'Umbrella Underwriting Questions', fields: [
+      ['umb_follow_form', 'Follow-form coverage requested?', 'yesno', null, true],
+      ['umb_excluded_operations', 'Any excluded/high-hazard operations?', 'yesno', null, true],
+      ['umb_prior_excess_losses', 'Any prior excess/umbrella losses?', 'yesno', null, true],
+      ['umb_foreign_exposure', 'Any foreign products/operations exposure?', 'yesno', null, true],
+    ]},
+  ],
+};
+function buildGenericPolicyForm(scenario) {
+  const prefix = 'generic';
+  const policyLabel = policyMeta(scenario.line).label;
+  $(`${prefix}-quote-title`).textContent = `${policyLabel} — ${scenario.name}`;
+  $(`${prefix}-scenario-label`).textContent = `${scenario.difficulty.toUpperCase()} · ${scenario.line}`;
+  $(`${prefix}-scenario-brief`).innerHTML = renderScenarioBrief(scenario);
+
+  const steps = GENERIC_POLICY_FORM_DEFS[scenario.line] || GENERIC_POLICY_FORM_DEFS.BOP;
+  const panels = steps.map((step, idx) => stepPanel(idx, step.title, `<div class="form-row generic-policy-grid">${renderGenericFields(step.fields)}</div>`));
+  $(`${prefix}-steps-container`).innerHTML = panels.join('');
+  buildStepper(`${prefix}-stepper`, steps.map(s => s.title.replace(' Information','').replace('Coverages','Coverage')));
+  state.totalSteps = steps.length;
+  setupFormNav(prefix);
+}
+
 /* ── VEHICLE FIELDS BUILDER ── */
 function buildVehicleFields(count) {
   let html = '';
@@ -1100,15 +1321,54 @@ function calculatePremium(line, scenario, submitted) {
     if (lossCount >= 1) rate *= 1 + Math.min(lossCount, 4) * 0.12;
     return Math.max(750, Math.round((tiv * rate) / 10) * 10);
   }
-
-  const vehicleCount = numericValue(decValue(line, submitted, 'num_vehicles', 1)) || (scenario.difficulty === 'hard' ? 12 : scenario.difficulty === 'normal' ? 6 : 2);
-  const limit = numericValue(decValue(line, submitted, 'liability_limit', 1000000)) || 1000000;
-  let premium = vehicleCount * (limit >= 1000000 ? 1280 : limit >= 500000 ? 980 : 720);
-  const lossCount = numericValue(decValue(line, submitted, 'num_losses', decValue(line, submitted, 'prior_losses', 0))) || 0;
-  premium *= 1 + Math.min(lossCount, 5) * 0.1;
-  if (scenario.difficulty === 'hard') premium += numericValue(decValue(line, submitted, 'cargo_limit', 0)) * 0.012;
-  if (canonicalAnswer(decValue(line, submitted, 'hired_nonowned', '')).startsWith('yes')) premium += 350;
-  return Math.max(950, Math.round(premium / 10) * 10);
+  if (line === 'Auto') {
+    const vehicleCount = numericValue(decValue(line, submitted, 'num_vehicles', 1)) || (scenario.difficulty === 'hard' ? 12 : scenario.difficulty === 'normal' ? 6 : 2);
+    const limit = numericValue(decValue(line, submitted, 'liability_limit', 1000000)) || 1000000;
+    let premium = vehicleCount * (limit >= 1000000 ? 1280 : limit >= 500000 ? 980 : 720);
+    const lossCount = numericValue(decValue(line, submitted, 'num_losses', decValue(line, submitted, 'prior_losses', 0))) || 0;
+    premium *= 1 + Math.min(lossCount, 5) * 0.1;
+    if (scenario.difficulty === 'hard') premium += numericValue(decValue(line, submitted, 'cargo_limit', 0)) * 0.012;
+    if (canonicalAnswer(decValue(line, submitted, 'hired_nonowned', '')).startsWith('yes')) premium += 350;
+    return Math.max(950, Math.round(premium / 10) * 10);
+  }
+  if (line === 'BOP') {
+    const building = numericValue(decValue(line, submitted, 'bop_building_limit', 0)) || 0;
+    const bpp = numericValue(decValue(line, submitted, 'bop_bpp_limit', 0)) || 0;
+    const income = numericValue(decValue(line, submitted, 'bop_business_income', 0)) || 0;
+    const revenue = numericValue(decValue(line, submitted, 'bop_annual_revenue', 0)) || 0;
+    let premium = (building + bpp + income) * 0.006 + revenue * 0.004;
+    if ((numericValue(decValue(line, submitted, 'g_num_losses', 0)) || 0) > 0) premium *= 1.15;
+    return Math.max(600, Math.round(premium / 10) * 10);
+  }
+  if (line === 'Workers Compensation') {
+    const payroll = numericValue(decValue(line, submitted, 'wc_annual_payroll', 0)) || 0;
+    const mod = numericValue(decValue(line, submitted, 'wc_mod_factor', 1)) || 1;
+    const classCode = compact(decValue(line, submitted, 'wc_class_code2', ''));
+    let rate = classCode && classCode !== 'none' ? 0.021 : 0.012;
+    let premium = payroll * rate * mod;
+    const losses = numericValue(decValue(line, submitted, 'g_num_losses', 0)) || 0;
+    premium *= 1 + Math.min(losses, 4) * 0.08;
+    return Math.max(850, Math.round(premium / 10) * 10);
+  }
+  if (line === 'General Liability') {
+    const revenue = numericValue(decValue(line, submitted, 'cgl_annual_revenue', 0)) || 0;
+    const payroll = numericValue(decValue(line, submitted, 'cgl_payroll', 0)) || 0;
+    const subs = numericValue(decValue(line, submitted, 'cgl_subcontractor_costs', 0)) || 0;
+    const limit = numericValue(decValue(line, submitted, 'cgl_occurrence_limit', 1000000)) || 1000000;
+    let premium = revenue * 0.0022 + payroll * 0.003 + subs * 0.006;
+    if (limit > 1000000) premium *= 1.25;
+    if ((numericValue(decValue(line, submitted, 'g_num_losses', 0)) || 0) > 0) premium *= 1.18;
+    return Math.max(500, Math.round(premium / 10) * 10);
+  }
+  if (line === 'Umbrella') {
+    const limit = numericValue(decValue(line, submitted, 'umb_limit', 1000000)) || 1000000;
+    const underlyingPremium = numericValue(decValue(line, submitted, 'umb_underlying_expiring_premium', 0)) || 0;
+    const vehicles = numericValue(decValue(line, submitted, 'umb_vehicle_count', 0)) || 0;
+    let premium = underlyingPremium * 0.18 + (limit / 1000000) * 650 + vehicles * 85;
+    if ((numericValue(decValue(line, submitted, 'g_num_losses', 0)) || 0) > 0) premium *= 1.2;
+    return Math.max(750, Math.round(premium / 10) * 10);
+  }
+  return 1000;
 }
 function buildPropertyCoverages(submitted, scenario) {
   const hard = scenario.difficulty === 'hard';
@@ -1161,31 +1421,95 @@ function buildAutoCoverages(submitted, scenario) {
   }
   return rows;
 }
+function buildGenericCoverages(line, submitted) {
+  if (line === 'BOP') {
+    return [
+      ['Building', money(decValue(line, submitted, 'bop_building_limit', 0)), `Deductible ${decValue(line, submitted, 'bop_deductible', '—')}`],
+      ['Business Personal Property', money(decValue(line, submitted, 'bop_bpp_limit', 0)), `Deductible ${decValue(line, submitted, 'bop_deductible', '—')}`],
+      ['Business Income / Extra Expense', money(decValue(line, submitted, 'bop_business_income', 0)), 'Subject to policy period'],
+      ['Business Liability', decValue(line, submitted, 'bop_gl_limit', '—'), 'Per occurrence / aggregate'],
+    ];
+  }
+  if (line === 'Workers Compensation') {
+    return [
+      ['Workers Compensation', `State: ${decValue(line, submitted, 'wc_state', '—')}`, 'Statutory benefits apply'],
+      ['Employers Liability', decValue(line, submitted, 'wc_policy_limit', '—'), 'Bodily injury by accident/disease'],
+      ['Class Code 1', `${decValue(line, submitted, 'wc_class_code1', '—')} — ${decValue(line, submitted, 'wc_class_desc1', '—')}`, `Payroll ${money(decValue(line, submitted, 'wc_payroll1', 0))}`],
+      ['Class Code 2', `${decValue(line, submitted, 'wc_class_code2', '—')} — ${decValue(line, submitted, 'wc_class_desc2', '—')}`, `Payroll ${money(decValue(line, submitted, 'wc_payroll2', 0))}`],
+      ['Experience Mod', decValue(line, submitted, 'wc_mod_factor', '—'), `Total payroll ${money(decValue(line, submitted, 'wc_annual_payroll', 0))}`],
+    ];
+  }
+  if (line === 'General Liability') {
+    return [
+      ['Each Occurrence', money(decValue(line, submitted, 'cgl_occurrence_limit', 0)), `Deductible/SIR ${money(decValue(line, submitted, 'cgl_deductible', 0))}`],
+      ['General Aggregate', money(decValue(line, submitted, 'cgl_aggregate_limit', 0)), 'Policy aggregate'],
+      ['Products / Completed Operations', decValue(line, submitted, 'cgl_products_completed', '—'), 'Subject to classification'],
+      ['Medical Payments', money(decValue(line, submitted, 'cgl_med_pay', 0)), 'Per person'],
+      ['Rating Exposure', decValue(line, submitted, 'cgl_exposure_basis', '—'), `Revenue ${money(decValue(line, submitted, 'cgl_annual_revenue', 0))}`],
+    ];
+  }
+  if (line === 'Umbrella') {
+    return [
+      ['Commercial Umbrella Limit', money(decValue(line, submitted, 'umb_limit', 0)), `SIR ${money(decValue(line, submitted, 'umb_retention', 0))}`],
+      ['Underlying GL', `${decValue(line, submitted, 'umb_gl_carrier', '—')} / ${decValue(line, submitted, 'umb_gl_policy', '—')}`, `${money(decValue(line, submitted, 'umb_gl_occurrence_limit', 0))} occ / ${money(decValue(line, submitted, 'umb_gl_aggregate_limit', 0))} agg`],
+      ['Underlying Auto', `${decValue(line, submitted, 'umb_auto_carrier', '—')} / ${decValue(line, submitted, 'umb_auto_policy', '—')}`, `CSL ${decValue(line, submitted, 'umb_auto_limit', '—')}`],
+      ['Underlying Employers Liability', decValue(line, submitted, 'umb_el_limit', '—'), 'Schedule must be verified'],
+      ['Follow Form', decValue(line, submitted, 'umb_follow_form', '—'), 'Subject to exclusions'],
+    ];
+  }
+  return [];
+}
+function formsForLine(line) {
+  if (line === 'Property') return ['Common Policy Conditions', 'Commercial Property Coverage Form', 'Causes of Loss — Special Form', 'Business Income and Extra Expense'];
+  if (line === 'Auto') return ['Business Auto Coverage Form', 'Covered Auto Symbols Schedule', 'Business Auto Conditions', 'State Uninsured Motorist Selection/Rejection Form'];
+  if (line === 'BOP') return ['Businessowners Common Policy Conditions', 'Businessowners Coverage Form', 'Business Income and Extra Expense', 'Business Liability Conditions'];
+  if (line === 'Workers Compensation') return ['Workers Compensation and Employers Liability Policy', 'Information Page', 'State-Specific Endorsements', 'Experience Rating Worksheet'];
+  if (line === 'General Liability') return ['Commercial General Liability Coverage Form', 'CG 00 01', 'Additional Insured Schedule', 'Products/Completed Operations Schedule'];
+  if (line === 'Umbrella') return ['Commercial Umbrella Liability Coverage Form', 'Underlying Insurance Schedule', 'Follow Form Excess Liability Endorsement', 'Self-Insured Retention Endorsement'];
+  return ['Commercial Policy Training Form'];
+}
 function buildDeclarationData(scenario, submitted, score, result) {
   const line = scenario.line;
+  const meta = policyMeta(line);
   const effective = addDays(new Date(), 14);
   const expiration = addDays(effective, 365);
   const premium = calculatePremium(line, scenario, submitted);
   const quoteSuffix = String(Date.now()).slice(-6);
-  const namedInsured = decValue(line, submitted, 'applicant_name');
-  const city = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_city' : 'address_city') : decValue(line, submitted, 'garage_city');
-  const state = stateLabel(line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_state' : 'address_state') : decValue(line, submitted, 'garage_state'));
-  const zip = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_zip' : 'address_zip') : decValue(line, submitted, 'garage_zip');
-  const street = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_street' : 'address_street') : decValue(line, submitted, 'garage_street');
-  const additionalInterests = line === 'Property'
-    ? [decValue(line, submitted, scenario.difficulty === 'hard' ? 'mortgagee_loc1' : 'mortgagee_name'), decValue(line, submitted, 'loss_payee'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured')].filter(v => v && v !== '—' && canonicalAnswer(v) !== 'none')
-    : [decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'loss_payee_1' : 'loss_payee')].filter(v => v && v !== '—' && canonicalAnswer(v) !== 'none');
+  const namedInsured = decValue(line, submitted, 'g_applicant_name', decValue(line, submitted, 'applicant_name'));
+
+  const isProperty = line === 'Property';
+  const isAuto = line === 'Auto';
+  const city = isProperty ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_city' : 'address_city') : isAuto ? decValue(line, submitted, 'garage_city') : decValue(line, submitted, 'g_city');
+  const state = stateLabel(isProperty ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_state' : 'address_state') : isAuto ? decValue(line, submitted, 'garage_state') : decValue(line, submitted, 'g_state'));
+  const zip = isProperty ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_zip' : 'address_zip') : isAuto ? decValue(line, submitted, 'garage_zip') : decValue(line, submitted, 'g_zip');
+  const street = isProperty ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_street' : 'address_street') : isAuto ? decValue(line, submitted, 'garage_street') : decValue(line, submitted, 'g_street');
+
+  let additionalInterests = [];
+  if (isProperty) {
+    additionalInterests = [decValue(line, submitted, scenario.difficulty === 'hard' ? 'mortgagee_loc1' : 'mortgagee_name'), decValue(line, submitted, 'loss_payee'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured')];
+  } else if (isAuto) {
+    additionalInterests = [decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'loss_payee_1' : 'loss_payee')];
+  } else {
+    additionalInterests = [decValue(line, submitted, 'g_mortgagee'), decValue(line, submitted, 'g_loss_payee'), decValue(line, submitted, 'g_additional_insured')];
+  }
+  additionalInterests = additionalInterests.filter(v => v && v !== '—' && canonicalAnswer(v) !== 'none');
+
+  const coverages = isProperty ? buildPropertyCoverages(submitted, scenario) : isAuto ? buildAutoCoverages(submitted, scenario) : buildGenericCoverages(line, submitted);
+  const sic = decValue(line, submitted, 'g_sic_code', decValue(line, submitted, 'sic_code'));
+  const businessDescription = line === 'General Liability'
+    ? decValue(line, submitted, 'cgl_business_description', `SIC ${sic} — ${meta.label} Risk`)
+    : `SIC ${sic} — ${meta.label} Risk`;
 
   return {
     carrier: carrierNameForScenario(scenario),
-    quoteNumber: `Q-${line === 'Property' ? 'CP' : 'CA'}-${quoteSuffix}`,
-    policyNumber: `${line === 'Property' ? 'CP' : 'CA'}-${new Date().getFullYear()}-${quoteSuffix}`,
+    quoteNumber: `Q-${quoteCodeForLine(line)}-${quoteSuffix}`,
+    policyNumber: `${quoteCodeForLine(line)}-${new Date().getFullYear()}-${quoteSuffix}`,
     status: result === 'Pass' ? 'Ready for Licensed Producer Review' : 'Correction Required Before Producer Review',
     binderStatus: 'Not Bound — Training Sample Only',
     namedInsured,
-    dba: decValue(line, submitted, 'dba', ''),
+    dba: decValue(line, submitted, 'g_dba', decValue(line, submitted, 'dba', '')),
     mailingAddress: `${street}, ${city}, ${state} ${zip}`,
-    businessDescription: line === 'Property' ? `SIC ${decValue(line, submitted, 'sic_code')} — Commercial Property Risk` : `SIC ${decValue(line, submitted, 'sic_code')} — Commercial Auto Risk`,
+    businessDescription,
     policyPeriod: `${fmtFullDate(effective)} to ${fmtFullDate(expiration)}`,
     line,
     score,
@@ -1193,12 +1517,10 @@ function buildDeclarationData(scenario, submitted, score, result) {
     totalPremium: premium,
     fees: 125,
     taxes: Math.round(premium * 0.035),
-    coverages: line === 'Property' ? buildPropertyCoverages(submitted, scenario) : buildAutoCoverages(submitted, scenario),
-    vehicles: line === 'Auto' ? buildVehicleSchedule(submitted, scenario) : [],
+    coverages,
+    vehicles: isAuto ? buildVehicleSchedule(submitted, scenario) : [],
     additionalInterests,
-    forms: line === 'Property'
-      ? ['Common Policy Conditions', 'Commercial Property Coverage Form', 'Causes of Loss — Special Form', 'Business Income and Extra Expense']
-      : ['Business Auto Coverage Form', 'Covered Auto Symbols Schedule', 'Business Auto Conditions', 'State Uninsured Motorist Selection/Rejection Form'],
+    forms: formsForLine(line),
     reviewNotes: [
       'Sample declaration page generated for VA training only.',
       'Licensed producer must review coverage, eligibility, forms, and final premium before client release.',
@@ -1383,7 +1705,7 @@ function showResults(attempt) {
     </div>
     <div class="results-actions">
       <button class="btn btn-outline" onclick="retryScenario()">↺ Retry This Scenario</button>
-      <button class="btn btn-primary" onclick="navigate('${attempt.line === 'Property' ? 'property-select' : 'auto-select'}')">Try Another Scenario</button>
+      <button class="btn btn-primary" onclick="navigate('${policySelectRoute(attempt.line)}')">Try Another Scenario</button>
       <button class="btn btn-success" onclick="printResults()">Print / Export Results + Dec Page</button>
     </div>`;
 }
@@ -1419,7 +1741,7 @@ function renderHistory() {
   tbody.innerHTML = myAttempts.map(a => `
     <tr>
       <td>${fmtDate(a.date)}</td>
-      <td><span class="badge ${a.line === 'Property' ? 'property' : 'auto'}">${escHtml(a.line)}</span></td>
+      <td><span class="badge ${policyBadgeClass(a.line)}">${escHtml(a.line)}</span></td>
       <td>${escHtml(a.scenarioName.replace(/^(Easy|Normal|Hard) — /, ''))}</td>
       <td><span class="badge ${a.difficulty}">${a.difficulty.charAt(0).toUpperCase() + a.difficulty.slice(1)}</span></td>
       <td><strong>${a.score}%</strong></td>
@@ -1463,7 +1785,7 @@ function filterAdmin() {
     <tr>
       <td>${escHtml(a.name)}</td>
       <td>${escHtml(a.email)}</td>
-      <td><span class="badge ${a.line === 'Property' ? 'property' : 'auto'}">${escHtml(a.line)}</span></td>
+      <td><span class="badge ${policyBadgeClass(a.line)}">${escHtml(a.line)}</span></td>
       <td>${escHtml(a.scenarioName.replace(/^(Easy|Normal|Hard) — /, ''))}</td>
       <td><span class="badge ${a.difficulty}">${a.difficulty.charAt(0).toUpperCase() + a.difficulty.slice(1)}</span></td>
       <td><strong>${a.score}%</strong></td>
@@ -1476,7 +1798,7 @@ function filterAdmin() {
 /* ── FORMAT FIELD LABELS ── */
 function formatFieldLabel(key) {
   return key
-    .replace(/^[pa]_/, '')
+    .replace(/^(p|a|g|bop|wc|cgl|umb)_/, '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase())
     .replace(/\bBpp\b/, 'BPP')
@@ -1568,6 +1890,10 @@ function init() {
 
   // Dashboard quick links
   $('dash-property-btn').addEventListener('click', () => navigate('property-select'));
+  $('dash-bop-btn')?.addEventListener('click', () => navigate('bop-select'));
+  $('dash-wc-btn')?.addEventListener('click', () => navigate('wc-select'));
+  $('dash-cgl-btn')?.addEventListener('click', () => navigate('cgl-select'));
+  $('dash-umbrella-btn')?.addEventListener('click', () => navigate('umbrella-select'));
   $('dash-auto-btn').addEventListener('click', () => navigate('auto-select'));
 
   // Recent activity link (in dashboard)
