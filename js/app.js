@@ -49,12 +49,138 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function normalize(v) {
-  return String(v || '').trim().toLowerCase().replace(/[$,\s]/g, '').replace(/[()]/g, '');
+  return String(v || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[$,]/g, '')
+    .replace(/[()]/g, '')
+    .replace(/\s+/g, ' ');
+}
+function compact(v) {
+  return normalize(v).replace(/[^a-z0-9]/g, '');
+}
+function numericValue(v) {
+  const raw = String(v || '').trim();
+  if (!/\d/.test(raw)) return null;
+  const cleaned = raw.replace(/[^0-9.\-]/g, '');
+  if (!cleaned || cleaned === '-' || cleaned === '.') return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+function canonicalAnswer(v) {
+  const c = compact(v);
+  const noneSet = ['none', 'no', 'n', '0', 'zero', 'notapplicable', 'na', 'n/a'];
+  if (noneSet.includes(c)) return 'none';
+  const corpSet = ['corporation', 'corporationinc', 'inc', 'incorporated'];
+  if (corpSet.includes(c)) return 'corporation';
+  const sCorpSet = ['scorporation', 'scorp', 's-corporation'];
+  if (sCorpSet.includes(c)) return 'scorporation';
+  const monitoredSet = ['centralmonitored', 'yescentralmonitored', 'centralalarm', 'central'];
+  if (monitoredSet.includes(c)) return 'centralmonitored';
+  const wetFullSet = ['wetpipefull', 'wetpipefullysprinklered', 'wetfull'];
+  if (wetFullSet.includes(c)) return 'wetpipefull';
+  const dryFullSet = ['drypipefull', 'dryfull'];
+  if (dryFullSet.includes(c)) return 'drypipefull';
+  return c;
 }
 function answersMatch(submitted, correct) {
-  const s = normalize(submitted);
-  const c = normalize(correct);
-  return s === c || s.includes(c) || c.includes(s);
+  const submittedRaw = String(submitted || '').trim();
+  const correctRaw = String(correct || '').trim();
+  if (!submittedRaw && correctRaw) return false;
+
+  const sNum = numericValue(submittedRaw);
+  const cNum = numericValue(correctRaw);
+  if (sNum !== null && cNum !== null) return Math.abs(sNum - cNum) < 0.001;
+
+  const s = canonicalAnswer(submittedRaw);
+  const c = canonicalAnswer(correctRaw);
+  if (s === c) return true;
+
+  // Permit clear text matches such as "Corporation (Inc.)" vs "Corporation",
+  // but avoid dangerous one-character or numeric substring matches.
+  if (s.length >= 5 && c.length >= 5 && (s.includes(c) || c.includes(s))) return true;
+  return false;
+}
+
+const FIELD_KEY_MAP = {
+  Property: {
+    address_street: 'p_street', address_city: 'p_city', address_state: 'p_state', address_zip: 'p_zip',
+    square_footage: 'p_sqft', building_value: 'p_building1', bpp_value: 'p_bpp1', prior_losses: 'p_num_losses',
+    loss_year: 'p_loss1_year', loss_type: 'p_loss1_type', loss_amount: 'p_loss1_amount',
+    loc1_street: 'p_street', loc1_city: 'p_city', loc1_state: 'p_state', loc1_zip: 'p_zip',
+    loc1_year_built: 'p_year_built', loc1_construction: 'p_construction_type', loc1_sqft: 'p_sqft', loc1_stories: 'p_num_stories',
+    loc1_roof_type: 'p_roof_type', loc1_roof_age: 'p_roof_age', loc1_pc: 'p_protection_class',
+    loc1_sprinkler: 'p_sprinkler', loc1_fire_alarm: 'p_fire_alarm', loc1_burglar_alarm: 'p_burglar_alarm',
+    loc1_building: 'p_building1', loc1_bpp: 'p_bpp1', loc1_tenant_impr: 'p_tenant_impr1',
+    loc2_street: 'p_street2', loc2_city: 'p_city2', loc2_state: 'p_state2', loc2_zip: 'p_zip2',
+    loc2_year_built: 'p_year_built2', loc2_construction: 'p_construction_type2', loc2_sqft: 'p_sqft2', loc2_stories: 'p_stories2',
+    loc2_roof_type: 'p_roof_type2', loc2_roof_age: 'p_roof_age2', loc2_pc: 'p_pc2',
+    loc2_sprinkler: 'p_sprinkler2', loc2_fire_alarm: 'p_fire_alarm2', loc2_burglar_alarm: 'p_burglar_alarm2',
+    loc2_building: 'p_building2', loc2_bpp: 'p_bpp2',
+    num_losses: 'p_num_losses',
+    loss1_year: 'p_loss1_year', loss1_type: 'p_loss1_type', loss1_amount: 'p_loss1_amount',
+    loss2_year: 'p_loss2_year', loss2_type: 'p_loss2_type', loss2_amount: 'p_loss2_amount',
+    loss3_year: 'p_loss3_year', loss3_type: 'p_loss3_type', loss3_amount: 'p_loss3_amount',
+    mortgagee_loc1: 'p_mortgagee_name', mortgagee_loan_loc1: 'p_mortgagee_loan',
+    mortgagee_loc2: 'p_mortgagee_name2', mortgagee_loan_loc2: 'p_mortgagee_loan2',
+    add_insured_1: 'p_additional_insured', add_insured_2: 'p_additional_insured2'
+  },
+  Auto: {
+    prior_losses: 'a_num_losses', num_vehicles: 'a_num_vehicles',
+    v1_pd: 'a_v1_pd', v1_ded: 'a_v1_ded', v2_pd: 'a_v2_pd', v2_ded: 'a_v2_ded',
+    d1_license_class: 'a_d1_license_class', d2_license_class: 'a_d2_license_class', d3_license_class: 'a_d3_license_class', d4_license_class: 'a_d4_license_class',
+    d5_license_class: 'a_d5_license_class', d6_license_class: 'a_d6_license_class', d7_license_class: 'a_d7_license_class', d8_license_class: 'a_d8_license_class',
+    d2_violation_year: 'a_d2_violation_year',
+    tractor_pd_ded: 'a_tractor_ded', trailer_pd_ded: 'a_trailer_ded',
+    trailer_int_limit: 'a_ti_limit', trailer_int_ded: 'a_ti_ded',
+    loss_year: 'a_loss1_year', loss_type: 'a_loss1_type', loss_amount: 'a_loss1_amount',
+    loss1_year: 'a_loss1_year', loss1_type: 'a_loss1_type', loss1_amount: 'a_loss1_amount',
+    loss2_year: 'a_loss2_year', loss2_type: 'a_loss2_type', loss2_amount: 'a_loss2_amount',
+    loss3_year: 'a_loss3_year', loss3_type: 'a_loss3_type', loss3_amount: 'a_loss3_amount',
+    loss4_year: 'a_loss4_year', loss4_type: 'a_loss4_type', loss4_amount: 'a_loss4_amount',
+    add_insured_1: 'a_additional_insured', add_insured_2: 'a_additional_insured2',
+    loss_payee_1: 'a_loss_payee', loss_payee_2: 'a_loss_payee_2'
+  }
+};
+function fieldKeyForAnswer(key, line) {
+  const map = FIELD_KEY_MAP[line] || {};
+  if (map[key]) return map[key];
+  if (key.startsWith('p_') || key.startsWith('a_')) return key;
+  return line === 'Property' ? `p_${key}` : `a_${key}`;
+}
+function submittedValueForAnswer(key, line, submitted) {
+  const primary = fieldKeyForAnswer(key, line);
+  return submitted[primary] || submitted[key] || '';
+}
+function money(n) {
+  const val = numericValue(n) || 0;
+  return val.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+}
+function plainNumber(n) {
+  const val = numericValue(n) || 0;
+  return val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function fmtFullDate(date) {
+  return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+function carrierNameForScenario(scenario) {
+  if (scenario.line === 'Property') {
+    if (scenario.difficulty === 'hard') return 'Northstar Commercial Indemnity';
+    if (scenario.difficulty === 'normal') return 'Pinnacle Property & Casualty';
+    return 'LAVA Shield Mutual';
+  }
+  if (scenario.difficulty === 'hard') return 'Summit Transportation Casualty';
+  if (scenario.difficulty === 'normal') return 'Atlas Commercial Auto';
+  return 'LAVA Fleet Guard';
+}
+function stateLabel(code) {
+  const row = US_STATES.find(s => s.value === code || s.label === code);
+  return row ? row.value : code;
 }
 
 /* ── MODAL ── */
@@ -319,6 +445,27 @@ function updateStepper(total, current) {
   }
 }
 
+function renderScenarioBrief(scenario) {
+  const b = scenario.brief;
+  const intakeId = `SUB-${scenario.line === 'Property' ? 'CP' : 'CA'}-${scenario.id.toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
+  const targetEffective = fmtFullDate(addDays(new Date(), 14));
+  return `
+    <div class="carrier-status-strip">
+      <div><span>Carrier</span><strong>${escHtml(carrierNameForScenario(scenario))}</strong></div>
+      <div><span>Submission</span><strong>${escHtml(intakeId)}</strong></div>
+      <div><span>Status</span><strong>Quote Entry — Not Bound</strong></div>
+      <div><span>Target Effective</span><strong>${targetEffective}</strong></div>
+    </div>
+    <div class="authority-note">
+      <strong>Non-Licensed VA Reminder:</strong> Data entry and document preparation only. Do not bind coverage, advise the client on limits, interpret coverage, or promise eligibility. Escalate all coverage questions to a licensed producer.
+    </div>
+    <h3>${escHtml(b.title)}</h3>
+    <div class="brief-grid">${b.items.map(it =>
+      `<div class="brief-item"><span class="brief-label">${escHtml(it.label)}</span><span class="brief-val">${escHtml(it.value)}</span></div>`
+    ).join('')}</div>
+    ${b.distractors.length > 0 ? `<div class="brief-distractor"><strong>⚠ Attention-to-Detail Traps:</strong> ${b.distractors.map(d => escHtml(d)).join('<br>')}</div>` : ''}`;
+}
+
 /* ── PROPERTY FORM ── */
 function buildPropertyForm(scenario) {
   const prefix = 'prop';
@@ -327,12 +474,7 @@ function buildPropertyForm(scenario) {
 
   // Brief
   const b = scenario.brief;
-  $(`${prefix}-scenario-brief`).innerHTML = `
-    <h3>${escHtml(b.title)}</h3>
-    <div class="brief-grid">${b.items.map(it =>
-      `<div class="brief-item"><span class="brief-label">${escHtml(it.label)}</span><span class="brief-val">${escHtml(it.value)}</span></div>`
-    ).join('')}</div>
-    ${b.distractors.length > 0 ? `<div class="brief-distractor"><strong>⚠ Attention:</strong> ${b.distractors.map(d => escHtml(d)).join('<br>')}</div>` : ''}`;
+  $(`${prefix}-scenario-brief`).innerHTML = renderScenarioBrief(scenario);
 
   const steps = [
     'Applicant Info',
@@ -493,12 +635,7 @@ function buildAutoForm(scenario) {
   $(`${prefix}-scenario-label`).textContent = `${scenario.difficulty.toUpperCase()} · ${scenario.line}`;
 
   const b = scenario.brief;
-  $(`${prefix}-scenario-brief`).innerHTML = `
-    <h3>${escHtml(b.title)}</h3>
-    <div class="brief-grid">${b.items.map(it =>
-      `<div class="brief-item"><span class="brief-label">${escHtml(it.label)}</span><span class="brief-val">${escHtml(it.value)}</span></div>`
-    ).join('')}</div>
-    ${b.distractors.length > 0 ? `<div class="brief-distractor"><strong>⚠ Attention:</strong> ${b.distractors.map(d => escHtml(d)).join('<br>')}</div>` : ''}`;
+  $(`${prefix}-scenario-brief`).innerHTML = renderScenarioBrief(scenario);
 
   const isHard = scenario.difficulty === 'hard';
   const isNormal = scenario.difficulty === 'normal';
@@ -548,9 +685,10 @@ function buildAutoForm(scenario) {
     ),
     // Step 2 — Vehicles
     stepPanel(2, 'Vehicle Details',
-      `<p class="form-section-desc">Enter details for all ${numVehicles} vehicles listed in the scenario.</p>
-      ${isHard ? `<div class="form-row">${selectField('a_num_tractors','Number of Tractors',['1','2','3','4','5','6','7','8'],true)}
-      ${selectField('a_num_trailers','Number of Trailers',['1','2','3','4','5','6','7','8'],true)}</div>` : ''}
+      `<p class="form-section-desc">Enter details for all ${numVehicles} vehicles listed in the scenario. Verify VIN, year, make/model, and garaging details carefully before continuing.</p>
+      <div class="form-row">${selectField('a_num_vehicles','Number of Scheduled Vehicles',['1','2','3','4','5','6','7','8','9','10','11','12'],true)}
+      ${isHard ? selectField('a_num_tractors','Number of Tractors',['1','2','3','4','5','6','7','8'],true) : '<div></div>'}</div>
+      ${isHard ? `<div class="form-row">${selectField('a_num_trailers','Number of Trailers',['1','2','3','4','5','6','7','8'],true)}<div></div></div>` : ''}
       ${vehicleFields}`
     ),
     // Step 3 — Drivers
@@ -575,8 +713,15 @@ function buildAutoForm(scenario) {
         ${selectField('a_tractor_ded','Tractor Deductible ($)',['500','1000','2500','5000'],true)}
         ${selectField('a_trailer_pd','Trailer Physical Damage',['Comp and Collision','Comp Only','None'],true)}
         ${selectField('a_trailer_ded','Trailer Deductible ($)',['500','1000','2500','5000'],true)}` :
-        `${selectField('a_pd_coverage','Physical Damage',['Comp and Collision','Comp Only','Collision Only','None'],true)}
-        ${selectField('a_pd_deductible','Deductible ($)',['250','500','1000','2500','5000'],true)}`}
+        isNormal ?
+        `${selectField('a_pd_coverage','Fleet Physical Damage',['Comp and Collision','Comp Only','Collision Only','None'],true)}
+        ${selectField('a_pd_deductible','Fleet Deductible ($)',['250','500','1000','2500','5000'],true)}` :
+        `<div class="mini-section-title">Vehicle 1 Physical Damage</div>
+        <div class="form-row">${selectField('a_v1_pd','Vehicle 1 Physical Damage',['Comp and Collision','Comp Only','Collision Only','None'],true)}
+        ${selectField('a_v1_ded','Vehicle 1 Deductible ($)',['250','500','1000','2500','5000'],true)}</div>
+        <div class="mini-section-title">Vehicle 2 Physical Damage</div>
+        <div class="form-row">${selectField('a_v2_pd','Vehicle 2 Physical Damage',['Comp and Collision','Comp Only','Collision Only','None'],true)}
+        ${selectField('a_v2_ded','Vehicle 2 Deductible ($)',['250','500','1000','2500','5000'],true)}</div>`}
       ${isHard ? `<hr class="divider"><h3 style="font-size:0.95rem;font-weight:700;margin-bottom:16px">Cargo Coverage</h3>
       ${selectField('a_cargo_limit','Cargo Limit ($)',['25000','50000','100000','250000','500000'],true)}
       ${selectField('a_cargo_ded','Cargo Deductible ($)',['500','1000','2500','5000'],true)}
@@ -653,9 +798,11 @@ function buildDriverFields(count) {
         <div class="form-row">${textField(`a_d${i}_name`, 'Full Name', 'First Last', true)}
         ${textField(`a_d${i}_dob`, 'Date of Birth', 'MM/DD/YYYY', true)}</div>
         <div class="form-row">${textField(`a_d${i}_license`, 'Driver License #', 'State-XXXXXXXX', true)}
-        ${textField(`a_d${i}_exp`, 'Years of Driving Experience', 'e.g. 5', true)}</div>
-        ${selectField(`a_d${i}_mvr`, 'MVR Status', ['Clean','1 Violation','2 Violations','3+ Violations','At-fault Accident','DUI/DWI'], true)}
-        <div id="d${i}-violation-fields"></div>
+        ${selectField(`a_d${i}_license_class`, 'License Class', ['Class A','Class B','Class C','CDL-A','CDL-B','CDL-C','Operator'], false)}</div>
+        <div class="form-row">${textField(`a_d${i}_exp`, 'Years of Driving Experience', 'e.g. 5', true)}
+        ${selectField(`a_d${i}_mvr`, 'MVR Status', ['Clean','1 Violation','2 Violations','3+ Violations','At-fault Accident','DUI/DWI'], true)}</div>
+        <div class="form-row">${textField(`a_d${i}_violation_year`, 'Violation / Accident Year', 'YYYY, if listed')}
+        ${textField(`a_d${i}_violation_desc`, 'Violation / Accident Description', 'e.g. Speeding')}</div>
       </div>
     </details>`;
   }
@@ -680,6 +827,82 @@ function renderLossFields(containerId, prefix, count) {
   container.innerHTML = html;
 }
 
+/* ── VALIDATION & ACCURACY GUARDRAILS ── */
+function clearFieldError(input) {
+  input.classList.remove('field-invalid');
+  const err = $(`err-${input.id}`);
+  if (err) err.textContent = '';
+}
+function setFieldError(input, message) {
+  input.classList.add('field-invalid');
+  const err = $(`err-${input.id}`);
+  if (err) err.textContent = message;
+}
+function validateInput(input, silent = false) {
+  clearFieldError(input);
+  const value = String(input.value || '').trim();
+  const label = input.closest('.form-group')?.querySelector('label')?.textContent?.replace('*','').trim() || input.name || 'Field';
+  if (input.hasAttribute('required') && !value) {
+    if (!silent) setFieldError(input, `${label} is required.`);
+    return false;
+  }
+  if (!value) return true;
+  if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    if (!silent) setFieldError(input, 'Enter a valid email address.');
+    return false;
+  }
+  if (/vin/i.test(input.id) && value.replace(/[^A-Za-z0-9]/g, '').length !== 17) {
+    if (!silent) setFieldError(input, 'VIN must be exactly 17 characters.');
+    return false;
+  }
+  if (/(year_built|_year$)/i.test(input.id) && /year/i.test(label) && !/^\d{4}$/.test(value)) {
+    if (!silent) setFieldError(input, 'Use a 4-digit year.');
+    return false;
+  }
+  if (/(fein)/i.test(input.id) && !/^\d{2}-?\d{7}$/.test(value)) {
+    if (!silent) setFieldError(input, 'Use FEIN format XX-XXXXXXX.');
+    return false;
+  }
+  return true;
+}
+function validateStep(prefix, stepIndex, silent = false) {
+  const panel = document.querySelector(`#${prefix}-steps-container .step-panel[data-step="${stepIndex}"]`);
+  if (!panel) return true;
+  const fields = Array.from(panel.querySelectorAll('input, select, textarea'));
+  let ok = true;
+  let firstInvalid = null;
+  fields.forEach(field => {
+    if (!validateInput(field, silent)) {
+      ok = false;
+      if (!firstInvalid) firstInvalid = field;
+    }
+  });
+  if (!ok && !silent) {
+    firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    firstInvalid?.focus({ preventScroll: true });
+  }
+  return ok;
+}
+function validateFullForm(prefix) {
+  let firstBadStep = -1;
+  for (let i = 0; i < state.totalSteps; i++) {
+    if (!validateStep(prefix, i, true)) {
+      firstBadStep = i;
+      break;
+    }
+  }
+  if (firstBadStep >= 0) {
+    state.currentStep = firstBadStep;
+    updateStepView(prefix);
+    validateStep(prefix, firstBadStep, false);
+    showModal('Missing or Invalid Quote Details', 'Please correct the highlighted fields before submitting. Carrier-style quote entry requires every required detail to be reviewed before the quote can be released.', [
+      { label: 'Review Fields', cls: 'btn-primary' }
+    ]);
+    return false;
+  }
+  return true;
+}
+
 /* ── FORM NAV (NEXT / PREV) ── */
 function setupFormNav(prefix) {
   const nextBtn = $(`${prefix}-next-btn`);
@@ -691,6 +914,8 @@ function setupFormNav(prefix) {
   updateStepView(prefix);
 
   nextBtn.onclick = () => {
+    if (!validateStep(prefix, state.currentStep)) return;
+    collectFormData(prefix);
     if (state.currentStep < state.totalSteps - 1) {
       state.currentStep++;
       updateStepView(prefix);
@@ -704,6 +929,7 @@ function setupFormNav(prefix) {
   };
   form.onsubmit = (e) => {
     e.preventDefault();
+    if (!validateFullForm(prefix)) return;
     collectFormData(prefix);
     submitQuote();
   };
@@ -735,6 +961,199 @@ function collectFormData(prefix) {
   });
 }
 
+/* ── DECLARATION PAGE GENERATOR ── */
+function decValue(line, submitted, key, fallback = '—') {
+  const val = submittedValueForAnswer(key, line, submitted);
+  return val || fallback;
+}
+function calculatePremium(line, scenario, submitted) {
+  if (line === 'Property') {
+    const building = numericValue(decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_building' : 'building_value', 0)) || 0;
+    const building2 = numericValue(decValue(line, submitted, 'loc2_building', 0)) || 0;
+    const bpp = numericValue(decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_bpp' : 'bpp_value', 0)) || 0;
+    const bpp2 = numericValue(decValue(line, submitted, 'loc2_bpp', 0)) || 0;
+    const income = numericValue(decValue(line, submitted, 'business_income', 0)) || 0;
+    const extraExpense = numericValue(decValue(line, submitted, 'extra_expense', 0)) || 0;
+    const tenantImprovements = numericValue(decValue(line, submitted, 'loc1_tenant_impr', 0)) || 0;
+    const tiv = building + building2 + bpp + bpp2 + income + extraExpense + tenantImprovements;
+    let rate = scenario.difficulty === 'hard' ? 0.0088 : scenario.difficulty === 'normal' ? 0.0072 : 0.0065;
+    const sprinkler = canonicalAnswer(decValue(line, submitted, 'sprinkler', ''));
+    if (sprinkler.includes('full')) rate *= 0.92;
+    const lossCount = numericValue(decValue(line, submitted, 'num_losses', decValue(line, submitted, 'prior_losses', 0))) || 0;
+    if (lossCount >= 1) rate *= 1 + Math.min(lossCount, 4) * 0.12;
+    return Math.max(750, Math.round((tiv * rate) / 10) * 10);
+  }
+
+  const vehicleCount = numericValue(decValue(line, submitted, 'num_vehicles', 1)) || (scenario.difficulty === 'hard' ? 12 : scenario.difficulty === 'normal' ? 6 : 2);
+  const limit = numericValue(decValue(line, submitted, 'liability_limit', 1000000)) || 1000000;
+  let premium = vehicleCount * (limit >= 1000000 ? 1280 : limit >= 500000 ? 980 : 720);
+  const lossCount = numericValue(decValue(line, submitted, 'num_losses', decValue(line, submitted, 'prior_losses', 0))) || 0;
+  premium *= 1 + Math.min(lossCount, 5) * 0.1;
+  if (scenario.difficulty === 'hard') premium += numericValue(decValue(line, submitted, 'cargo_limit', 0)) * 0.012;
+  if (canonicalAnswer(decValue(line, submitted, 'hired_nonowned', '')).startsWith('yes')) premium += 350;
+  return Math.max(950, Math.round(premium / 10) * 10);
+}
+function buildPropertyCoverages(submitted, scenario) {
+  const hard = scenario.difficulty === 'hard';
+  const rows = [];
+  if (hard) {
+    rows.push(['Building — Location 1', money(decValue('Property', submitted, 'loc1_building', 0)), decValue('Property', submitted, 'deductible')]);
+    rows.push(['Business Personal Property — Location 1', money(decValue('Property', submitted, 'loc1_bpp', 0)), decValue('Property', submitted, 'deductible')]);
+    rows.push(['Tenant Improvements — Location 1', money(decValue('Property', submitted, 'loc1_tenant_impr', 0)), decValue('Property', submitted, 'deductible')]);
+    rows.push(['Building — Location 2', money(decValue('Property', submitted, 'loc2_building', 0)), decValue('Property', submitted, 'deductible')]);
+    rows.push(['Business Personal Property — Location 2', money(decValue('Property', submitted, 'loc2_bpp', 0)), decValue('Property', submitted, 'deductible')]);
+  } else {
+    rows.push(['Building', money(decValue('Property', submitted, 'building_value', 0)), decValue('Property', submitted, 'deductible')]);
+    rows.push(['Business Personal Property', money(decValue('Property', submitted, 'bpp_value', 0)), decValue('Property', submitted, 'deductible')]);
+  }
+  rows.push(['Business Income', money(decValue('Property', submitted, 'business_income', 0)), 'Waiting period applies']);
+  const extra = numericValue(decValue('Property', submitted, 'extra_expense', 0)) || 0;
+  if (extra) rows.push(['Extra Expense', money(extra), 'Included']);
+  const wind = decValue('Property', submitted, 'wind_hail_ded', '—');
+  if (wind !== '—') rows.push(['Wind / Hail Deductible', 'Applies by location', wind]);
+  return rows;
+}
+function buildVehicleSchedule(submitted, scenario) {
+  const count = numericValue(decValue('Auto', submitted, 'num_vehicles', scenario.difficulty === 'hard' ? 12 : scenario.difficulty === 'normal' ? 6 : 2)) || 0;
+  const rows = [];
+  for (let i = 1; i <= Math.min(count, 12); i++) {
+    const year = submitted[`a_v${i}_year`] || '—';
+    const make = submitted[`a_v${i}_make`] || '—';
+    const model = submitted[`a_v${i}_model`] || '—';
+    const vin = submitted[`a_v${i}_vin`] || '—';
+    const type = submitted[`a_v${i}_type`] || 'Scheduled Auto';
+    rows.push([String(i), `${year} ${make} ${model}`.replace(/—/g,'').trim() || 'Scheduled Fleet Unit', vin, type]);
+  }
+  return rows;
+}
+function buildAutoCoverages(submitted, scenario) {
+  const rows = [
+    ['Combined Single Limit Liability', money(decValue('Auto', submitted, 'liability_limit', 0)), 'Per accident'],
+    ['Hired & Non-Owned Auto', decValue('Auto', submitted, 'hired_nonowned', '—'), 'Subject to form'],
+  ];
+  if (scenario.difficulty === 'hard') {
+    rows.push(['Tractor Physical Damage Deductible', decValue('Auto', submitted, 'tractor_pd_ded', '—'), 'Per covered auto']);
+    rows.push(['Trailer Physical Damage Deductible', decValue('Auto', submitted, 'trailer_pd_ded', '—'), 'Per covered auto']);
+    rows.push(['Motor Truck Cargo', money(decValue('Auto', submitted, 'cargo_limit', 0)), `Deductible ${decValue('Auto', submitted, 'cargo_ded', '—')}`]);
+    rows.push(['Trailer Interchange', decValue('Auto', submitted, 'trailer_interchange', '—'), `Limit ${money(decValue('Auto', submitted, 'trailer_int_limit', 0))}`]);
+  } else if (scenario.difficulty === 'normal') {
+    rows.push(['Fleet Physical Damage', decValue('Auto', submitted, 'pd_coverage', '—'), `Deductible ${decValue('Auto', submitted, 'pd_deductible', '—')}`]);
+  } else {
+    rows.push(['Vehicle 1 Physical Damage', decValue('Auto', submitted, 'v1_pd', '—'), `Deductible ${decValue('Auto', submitted, 'v1_ded', '—')}`]);
+    rows.push(['Vehicle 2 Physical Damage', decValue('Auto', submitted, 'v2_pd', '—'), `Deductible ${decValue('Auto', submitted, 'v2_ded', '—')}`]);
+  }
+  return rows;
+}
+function buildDeclarationData(scenario, submitted, score, result) {
+  const line = scenario.line;
+  const effective = addDays(new Date(), 14);
+  const expiration = addDays(effective, 365);
+  const premium = calculatePremium(line, scenario, submitted);
+  const quoteSuffix = String(Date.now()).slice(-6);
+  const namedInsured = decValue(line, submitted, 'applicant_name');
+  const city = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_city' : 'address_city') : decValue(line, submitted, 'garage_city');
+  const state = stateLabel(line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_state' : 'address_state') : decValue(line, submitted, 'garage_state'));
+  const zip = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_zip' : 'address_zip') : decValue(line, submitted, 'garage_zip');
+  const street = line === 'Property' ? decValue(line, submitted, scenario.difficulty === 'hard' ? 'loc1_street' : 'address_street') : decValue(line, submitted, 'garage_street');
+  const additionalInterests = line === 'Property'
+    ? [decValue(line, submitted, scenario.difficulty === 'hard' ? 'mortgagee_loc1' : 'mortgagee_name'), decValue(line, submitted, 'loss_payee'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured')].filter(v => v && v !== '—' && canonicalAnswer(v) !== 'none')
+    : [decValue(line, submitted, scenario.difficulty === 'hard' ? 'add_insured_1' : 'additional_insured'), decValue(line, submitted, scenario.difficulty === 'hard' ? 'loss_payee_1' : 'loss_payee')].filter(v => v && v !== '—' && canonicalAnswer(v) !== 'none');
+
+  return {
+    carrier: carrierNameForScenario(scenario),
+    quoteNumber: `Q-${line === 'Property' ? 'CP' : 'CA'}-${quoteSuffix}`,
+    policyNumber: `${line === 'Property' ? 'CP' : 'CA'}-${new Date().getFullYear()}-${quoteSuffix}`,
+    status: result === 'Pass' ? 'Ready for Licensed Producer Review' : 'Correction Required Before Producer Review',
+    binderStatus: 'Not Bound — Training Sample Only',
+    namedInsured,
+    dba: decValue(line, submitted, 'dba', ''),
+    mailingAddress: `${street}, ${city}, ${state} ${zip}`,
+    businessDescription: line === 'Property' ? `SIC ${decValue(line, submitted, 'sic_code')} — Commercial Property Risk` : `SIC ${decValue(line, submitted, 'sic_code')} — Commercial Auto Risk`,
+    policyPeriod: `${fmtFullDate(effective)} to ${fmtFullDate(expiration)}`,
+    line,
+    score,
+    result,
+    totalPremium: premium,
+    fees: 125,
+    taxes: Math.round(premium * 0.035),
+    coverages: line === 'Property' ? buildPropertyCoverages(submitted, scenario) : buildAutoCoverages(submitted, scenario),
+    vehicles: line === 'Auto' ? buildVehicleSchedule(submitted, scenario) : [],
+    additionalInterests,
+    forms: line === 'Property'
+      ? ['Common Policy Conditions', 'Commercial Property Coverage Form', 'Causes of Loss — Special Form', 'Business Income and Extra Expense']
+      : ['Business Auto Coverage Form', 'Covered Auto Symbols Schedule', 'Business Auto Conditions', 'State Uninsured Motorist Selection/Rejection Form'],
+    reviewNotes: [
+      'Sample declaration page generated for VA training only.',
+      'Licensed producer must review coverage, eligibility, forms, and final premium before client release.',
+      'This output is not a binder, proof of insurance, or legal policy document.'
+    ]
+  };
+}
+function renderDeclarationPage(attempt) {
+  const d = attempt.declaration;
+  if (!d) return '';
+  const coverageRows = d.coverages.map(row => `<tr><td>${escHtml(row[0])}</td><td>${escHtml(row[1])}</td><td>${escHtml(row[2])}</td></tr>`).join('');
+  const vehicleRows = d.vehicles.map(row => `<tr><td>${escHtml(row[0])}</td><td>${escHtml(row[1])}</td><td>${escHtml(row[2])}</td><td>${escHtml(row[3])}</td></tr>`).join('');
+  return `
+    <div class="declaration-shell">
+      <div class="dec-watermark">SAMPLE TRAINING ONLY</div>
+      <div class="dec-topline">
+        <div>
+          <div class="dec-carrier">${escHtml(d.carrier)}</div>
+          <div class="dec-subtitle">${escHtml(d.line)} Coverage Declarations</div>
+        </div>
+        <div class="dec-status ${attempt.result === 'Pass' ? 'pass' : 'fail'}">${escHtml(d.status)}</div>
+      </div>
+      <div class="dec-grid">
+        <div><span>Policy Number</span><strong>${escHtml(d.policyNumber)}</strong></div>
+        <div><span>Quote Number</span><strong>${escHtml(d.quoteNumber)}</strong></div>
+        <div><span>Policy Period</span><strong>${escHtml(d.policyPeriod)}</strong></div>
+        <div><span>Binder Status</span><strong>${escHtml(d.binderStatus)}</strong></div>
+      </div>
+      <div class="dec-section two-col">
+        <div>
+          <h4>Named Insured</h4>
+          <p><strong>${escHtml(d.namedInsured)}</strong>${d.dba ? `<br>DBA: ${escHtml(d.dba)}` : ''}<br>${escHtml(d.mailingAddress)}</p>
+        </div>
+        <div>
+          <h4>Agency / Producer Review</h4>
+          <p><strong>LAVA Training Agency</strong><br>Prepared by: ${escHtml(attempt.name)}<br>Authority: Data Entry Only</p>
+        </div>
+      </div>
+      <div class="dec-section">
+        <h4>Business Description</h4>
+        <p>${escHtml(d.businessDescription)}</p>
+      </div>
+      <div class="dec-section">
+        <h4>Coverage Schedule</h4>
+        <table class="dec-table"><thead><tr><th>Coverage</th><th>Limit / Selection</th><th>Deductible / Notes</th></tr></thead><tbody>${coverageRows}</tbody></table>
+      </div>
+      ${d.line === 'Auto' && d.vehicles.length ? `<div class="dec-section"><h4>Scheduled Autos</h4><table class="dec-table"><thead><tr><th>#</th><th>Year / Make / Model</th><th>VIN</th><th>Type</th></tr></thead><tbody>${vehicleRows}</tbody></table></div>` : ''}
+      <div class="dec-section two-col">
+        <div>
+          <h4>Additional Interests</h4>
+          <p>${d.additionalInterests.length ? d.additionalInterests.map(escHtml).join('<br>') : 'None listed'}</p>
+        </div>
+        <div>
+          <h4>Premium Summary</h4>
+          <table class="dec-table compact"><tbody>
+            <tr><td>Estimated Premium</td><td>${money(d.totalPremium)}</td></tr>
+            <tr><td>Policy / Training Fee</td><td>${money(d.fees)}</td></tr>
+            <tr><td>Estimated Taxes/Surcharges</td><td>${money(d.taxes)}</td></tr>
+            <tr class="dec-total"><td>Total Estimated Cost</td><td>${money(d.totalPremium + d.fees + d.taxes)}</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="dec-section">
+        <h4>Forms & Endorsements Included</h4>
+        <p>${d.forms.map(escHtml).join(' · ')}</p>
+      </div>
+      <div class="dec-disclaimer">
+        ${d.reviewNotes.map(n => `<div>• ${escHtml(n)}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
 /* ── SUBMIT & GRADE ── */
 function submitQuote() {
   stopTimer();
@@ -747,13 +1166,13 @@ function submitQuote() {
   const fieldResults = [];
 
   Object.entries(correct).forEach(([key, correctVal]) => {
-    const formKey = key.startsWith('p_') || key.startsWith('a_') ? key :
-      (state.currentLine === 'Property' ? `p_${key}` : `a_${key}`);
-    const submittedVal = submitted[formKey] || submitted[key] || '';
+    const formKey = fieldKeyForAnswer(key, state.currentLine);
+    const submittedVal = submittedValueForAnswer(key, state.currentLine, submitted);
     const isCorrect = answersMatch(submittedVal, String(correctVal));
     if (isCorrect) correctCount++;
     fieldResults.push({
       key,
+      formKey,
       label: formatFieldLabel(key),
       submitted: submittedVal,
       correct: correctVal,
@@ -763,6 +1182,8 @@ function submitQuote() {
 
   const score = Math.round((correctCount / totalFields) * 100);
   const result = score >= PASSING_SCORE ? 'Pass' : 'Fail';
+
+  const declaration = buildDeclarationData(scenario, submitted, score, result);
 
   const attempt = {
     id: `att-${Date.now()}`,
@@ -779,6 +1200,8 @@ function submitQuote() {
     fieldResults,
     totalFields,
     correctCount,
+    submittedData: submitted,
+    declaration,
   };
 
   const attempts = loadAttempts();
@@ -812,6 +1235,7 @@ function showResults(attempt) {
       <div class="results-meta-card"><div class="meta-label">Time Spent</div><div class="meta-val">${fmtTimeMin(attempt.timeSecs)}</div></div>
       <div class="results-meta-card"><div class="meta-label">Score</div><div class="meta-val">${attempt.score}% (${attempt.result})</div></div>
     </div>
+    ${attempt.declaration ? renderDeclarationPage(attempt) : ''}
     ${wrongFields.length > 0 ? `
     <div class="results-section-card">
       <div class="rsc-header">⚠ Missed Fields (${wrongFields.length})</div>
@@ -843,7 +1267,7 @@ function showResults(attempt) {
     <div class="results-actions">
       <button class="btn btn-outline" onclick="retryScenario()">↺ Retry This Scenario</button>
       <button class="btn btn-primary" onclick="navigate('${attempt.line === 'Property' ? 'property-select' : 'auto-select'}')">Try Another Scenario</button>
-      <button class="btn btn-success" onclick="printResults()">Print / Export</button>
+      <button class="btn btn-success" onclick="printResults()">Print / Export Results + Dec Page</button>
     </div>`;
 }
 
@@ -1007,6 +1431,8 @@ function init() {
       { label: 'Cancel', cls: 'btn-outline' },
       { label: 'Logout', cls: 'btn-danger', action: () => {
         stopTimer();
+        localStorage.removeItem(STORAGE_KEY_TRAINEE);
+        state.trainee = null;
         $('page-app').classList.remove('active');
         $('page-login').classList.add('active');
         $('login-name').value = '';
@@ -1052,13 +1478,12 @@ function init() {
     if (e.target === $('modal-overlay')) hideModal();
   });
 
-  // Check for saved session
+  // Login listener + saved session
+  initLogin();
   const saved = loadTrainee();
   if (saved) {
     state.trainee = saved;
     bootApp();
-  } else {
-    initLogin();
   }
 }
 
