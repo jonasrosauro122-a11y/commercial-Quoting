@@ -8,6 +8,8 @@ const PASSING_SCORE = 90;
 const STORAGE_KEY_TRAINEE = 'lava_trainee';
 const STORAGE_KEY_ATTEMPTS = 'lava_attempts';
 const STORAGE_KEY_THEME = 'lava_theme';
+const STORAGE_KEY_PROFILES = 'lava_profiles';
+const STAFF_LOGIN_CODE = 'LAVA2026!';
 
 /* ── US STATES ── */
 const US_STATES = [
@@ -50,14 +52,44 @@ let state = {
   timerInterval: null,
   timerSeconds: 0,
   formData: {},
+  publicDashboard: [],
+  remoteAttempts: [],
+  remoteReady: false,
 };
 
 /* ── HELPERS ── */
 function $(id) { return document.getElementById(id); }
 function saveAttempts(attempts) { localStorage.setItem(STORAGE_KEY_ATTEMPTS, JSON.stringify(attempts)); }
-function loadAttempts() { return JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS) || '[]'); }
+function loadLocalAttempts() { return JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS) || '[]'); }
+function mergeAttempts(list) {
+  const map = new Map();
+  (list || []).forEach(a => {
+    if (!a || !a.id) return;
+    map.set(a.id, { ...(map.get(a.id) || {}), ...a });
+  });
+  return [...map.values()].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+}
+function loadAttempts() { return mergeAttempts([...loadLocalAttempts(), ...(state.remoteAttempts || [])]); }
 function saveTrainee(t) { localStorage.setItem(STORAGE_KEY_TRAINEE, JSON.stringify(t)); }
 function loadTrainee() { return JSON.parse(localStorage.getItem(STORAGE_KEY_TRAINEE) || 'null'); }
+function saveProfiles(profiles) { localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles)); }
+function loadProfiles() { return JSON.parse(localStorage.getItem(STORAGE_KEY_PROFILES) || '[]'); }
+function isStaff() { return !!state.trainee && ['Trainer', 'Team Lead'].includes(state.trainee.role); }
+function localRecordProfile(profile) {
+  const now = profile.loginTime || new Date().toISOString();
+  const profiles = loadProfiles();
+  const idx = profiles.findIndex(p => p.email === profile.email);
+  const row = {
+    full_name: profile.name,
+    email: profile.email,
+    role: profile.role || 'VA',
+    first_login_at: idx >= 0 ? profiles[idx].first_login_at : now,
+    last_login_at: now,
+    login_count: idx >= 0 ? Number(profiles[idx].login_count || 0) + 1 : 1,
+  };
+  if (idx >= 0) profiles[idx] = row; else profiles.push(row);
+  saveProfiles(profiles);
+}
 
 function fmtTime(secs) {
   const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -258,6 +290,118 @@ function showModal(title, body, buttons) {
 }
 function hideModal() { $('modal-overlay').style.display = 'none'; }
 
+/* ── REMOTE DATA SYNC ── */
+let lavaDbClient = null;
+function getLavaDb() {
+  if (lavaDbClient) return lavaDbClient;
+  const cfg = window.LAVA_SUPABASE || {};
+  const hasKeys = cfg.url && cfg.anonKey && !String(cfg.url).includes('YOUR_PROJECT_URL') && !String(cfg.anonKey).includes('YOUR_ANON_KEY');
+  if (!hasKeys || !window.supabase || !window.supabase.createClient) return null;
+  lavaDbClient = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } });
+  return lavaDbClient;
+}
+function remoteAvailable() { return !!getLavaDb(); }
+function normalizeRemoteAttempt(a) {
+  if (!a) return null;
+  return {
+    id: a.id || a.attempt_id,
+    name: a.name || a.full_name || '',
+    email: a.email || '',
+    role: a.role || 'VA',
+    scenarioId: a.scenarioId || a.scenario_id || '',
+    scenarioName: a.scenarioName || a.scenario_name || '',
+    line: a.line || '',
+    difficulty: a.difficulty || '',
+    score: Number(a.score || 0),
+    result: a.result || '',
+    date: a.date || a.completed_at || a.created_at || new Date().toISOString(),
+    timeSecs: Number(a.timeSecs ?? a.time_secs ?? 0),
+    fieldResults: a.fieldResults || a.field_results || [],
+    totalFields: Number(a.totalFields ?? a.total_fields ?? 0),
+    correctCount: Number(a.correctCount ?? a.correct_count ?? 0),
+    submittedData: a.submittedData || a.submitted_data || {},
+    declaration: a.declaration || a.declaration_data || null,
+    reviewNotes: a.reviewNotes || a.review_notes || '',
+    reviewStatus: a.reviewStatus || a.review_status || '',
+    reviewedBy: a.reviewedBy || a.reviewed_by || '',
+    reviewedAt: a.reviewedAt || a.reviewed_at || '',
+  };
+}
+async function remoteRecordLogin(profile) {
+  const db = getLavaDb();
+  if (!db) return { ok: true, offline: true };
+  const { data, error } = await db.rpc('lava_record_login', {
+    p_full_name: profile.name,
+    p_email: profile.email,
+    p_role: profile.role || 'VA',
+    p_login_code: profile.loginCode || null,
+  });
+  if (error) throw error;
+  return { ok: true, data };
+}
+async function remoteLoadPublicDashboard() {
+  const db = getLavaDb();
+  if (!db) return [];
+  const { data, error } = await db.rpc('lava_public_dashboard');
+  if (error) throw error;
+  return data || [];
+}
+async function remoteLoadMyAttempts(email) {
+  const db = getLavaDb();
+  if (!db || !email) return [];
+  const { data, error } = await db.rpc('lava_my_attempts', { p_email: email });
+  if (error) throw error;
+  return (data || []).map(normalizeRemoteAttempt).filter(Boolean);
+}
+async function remoteLoadTrainerAttempts() {
+  const db = getLavaDb();
+  if (!db || !state.trainee?.loginCode) return [];
+  const { data, error } = await db.rpc('lava_trainer_attempts', { p_login_code: state.trainee.loginCode });
+  if (error) throw error;
+  return (data || []).map(normalizeRemoteAttempt).filter(Boolean);
+}
+async function remoteRecordAttempt(attempt) {
+  const db = getLavaDb();
+  if (!db) return null;
+  const { data, error } = await db.rpc('lava_record_attempt', {
+    p_email: state.trainee.email,
+    p_attempt: attempt,
+  });
+  if (error) throw error;
+  return normalizeRemoteAttempt(data);
+}
+async function remoteSaveReview(attemptId, notes, status) {
+  const db = getLavaDb();
+  if (!db) return null;
+  const { data, error } = await db.rpc('lava_save_review', {
+    p_login_code: state.trainee.loginCode,
+    p_attempt_id: attemptId,
+    p_reviewer_name: state.trainee.name,
+    p_reviewer_email: state.trainee.email,
+    p_reviewer_role: state.trainee.role,
+    p_notes: notes,
+    p_status: status,
+  });
+  if (error) throw error;
+  return data;
+}
+async function syncDashboardData() {
+  try {
+    state.publicDashboard = await remoteLoadPublicDashboard();
+    state.remoteAttempts = isStaff() ? await remoteLoadTrainerAttempts() : await remoteLoadMyAttempts(state.trainee?.email);
+    state.remoteReady = remoteAvailable();
+  } catch (err) {
+    console.warn('Remote sync skipped:', err.message || err);
+  }
+}
+async function syncAndRefresh() {
+  await syncDashboardData();
+  refreshDashboard();
+  const active = document.querySelector('.section.active')?.id;
+  if (active === 'sec-history') renderHistory();
+  if (active === 'sec-admin') renderAdmin();
+}
+
 /* ── THEME ── */
 function applyTheme(dark) {
   document.body.classList.toggle('dark-mode', dark);
@@ -269,6 +413,10 @@ function applyTheme(dark) {
 
 /* ── NAVIGATION ── */
 function navigate(page) {
+  if (page === 'admin' && !isStaff()) {
+    showModal('Trainer Access Required', 'Only Trainers and Team Leads can open quote review details.', [{ label: 'Close', cls: 'btn-primary' }]);
+    page = 'dashboard';
+  }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -321,37 +469,74 @@ function navigate(page) {
   if (page === 'wc-select') renderWorkersCompScenarios();
   if (page === 'cgl-select') renderCglScenarios();
   if (page === 'umbrella-select') renderUmbrellaScenarios();
-  if (page === 'history') renderHistory();
-  if (page === 'admin') renderAdmin();
+  if (page === 'history') { renderHistory(); syncAndRefresh(); }
+  if (page === 'admin') { renderAdmin(); syncAndRefresh(); }
 
   $('main-content').scrollTop = 0;
 }
 
 /* ── LOGIN ── */
+function setLoginTab(tab) {
+  document.querySelectorAll('[data-login-tab]').forEach(btn => btn.classList.toggle('active', btn.dataset.loginTab === tab));
+  $('login-form')?.classList.toggle('active', tab === 'va');
+  $('staff-login-form')?.classList.toggle('active', tab === 'staff');
+}
+function clearLoginErrors() {
+  ['err-name','err-email','err-staff-name','err-staff-email','err-staff-code'].forEach(id => { const el = $(id); if (el) el.textContent = ''; });
+}
+function validateLoginInputs(name, email, role, code) {
+  let valid = true;
+  clearLoginErrors();
+  const nameErr = role === 'VA' ? $('err-name') : $('err-staff-name');
+  const emailErr = role === 'VA' ? $('err-email') : $('err-staff-email');
+  if (!name || name.trim().length < 2) { nameErr.textContent = 'Please enter your full name.'; valid = false; }
+  if (!email || !email.toLowerCase().endsWith('@lavatraining.com')) { emailErr.textContent = 'Email must use the @lavatraining.com domain.'; valid = false; }
+  if (role !== 'VA' && !code) { $('err-staff-code').textContent = 'Please enter the login code.'; valid = false; }
+  return valid;
+}
+async function completeLogin(profile) {
+  saveTrainee(profile);
+  localRecordProfile(profile);
+  state.trainee = profile;
+  try {
+    await remoteRecordLogin(profile);
+  } catch (err) {
+    if (profile.role !== 'VA' && remoteAvailable()) {
+      $('err-staff-code').textContent = 'Invalid login code or access is not available.';
+      return;
+    }
+    console.warn('Login saved locally only:', err.message || err);
+  }
+  bootApp();
+  syncAndRefresh();
+}
 function initLogin() {
-  $('login-form').addEventListener('submit', e => {
+  document.querySelectorAll('[data-login-tab]').forEach(btn => {
+    btn.addEventListener('click', () => setLoginTab(btn.dataset.loginTab));
+  });
+
+  $('login-form').addEventListener('submit', async e => {
     e.preventDefault();
     const name = $('login-name').value.trim();
     const email = $('login-email').value.trim().toLowerCase();
-    let valid = true;
+    if (!validateLoginInputs(name, email, 'VA')) return;
+    const trainee = { name, email, role: 'VA', loginTime: new Date().toISOString(), loginCode: '' };
+    await completeLogin(trainee);
+  });
 
-    $('err-name').textContent = '';
-    $('err-email').textContent = '';
-
-    if (!name || name.length < 2) {
-      $('err-name').textContent = 'Please enter your full name.';
-      valid = false;
+  $('staff-login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('staff-name').value.trim();
+    const email = $('staff-email').value.trim().toLowerCase();
+    const role = $('staff-role').value || 'Trainer';
+    const loginCode = $('staff-code').value.trim();
+    if (!validateLoginInputs(name, email, role, loginCode)) return;
+    if (!remoteAvailable() && loginCode !== STAFF_LOGIN_CODE) {
+      $('err-staff-code').textContent = 'Invalid login code.';
+      return;
     }
-    if (!email.endsWith('@lavatraining.com')) {
-      $('err-email').textContent = 'Email must use the @lavatraining.com domain.';
-      valid = false;
-    }
-    if (!valid) return;
-
-    const trainee = { name, email, loginTime: new Date().toISOString() };
-    saveTrainee(trainee);
-    state.trainee = trainee;
-    bootApp();
+    const trainee = { name, email, role, loginTime: new Date().toISOString(), loginCode };
+    await completeLogin(trainee);
   });
 }
 
@@ -362,21 +547,75 @@ function bootApp() {
 
   $('topbar-name').textContent = state.trainee.name;
   $('topbar-avatar').textContent = initials(state.trainee.name);
+  document.querySelector('.trainee-role').textContent = state.trainee.role === 'VA' ? 'VA Trainee' : state.trainee.role;
+  document.querySelectorAll('.trainer-only').forEach(el => el.classList.toggle('is-hidden', !isStaff()));
 
   refreshDashboard();
   navigate('dashboard');
 }
 
+function dashboardRows() {
+  const remoteRows = (state.publicDashboard || []).filter(r => (r.role || 'VA') === 'VA');
+  if (remoteRows.length) return remoteRows;
+  const attempts = loadAttempts();
+  return loadProfiles()
+    .filter(p => (p.role || 'VA') === 'VA')
+    .map(p => {
+      const vaAttempts = attempts.filter(a => a.email === p.email);
+      const latest = vaAttempts.slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))[0];
+      return {
+        full_name: p.full_name || p.name,
+        email: p.email,
+        role: 'VA',
+        last_login_at: p.last_login_at,
+        attempts_count: vaAttempts.length,
+        last_quote_at: latest?.date || null,
+        last_line: latest?.line || '—',
+        latest_score: latest?.score ?? null,
+        latest_result: latest?.result || '—',
+      };
+    });
+}
+function renderVaLoginBoard() {
+  const board = $('va-login-board');
+  const count = $('va-board-count');
+  if (!board) return;
+  const rows = dashboardRows().sort((a, b) => new Date(b.last_login_at || 0) - new Date(a.last_login_at || 0));
+  if (count) count.textContent = `${rows.length} ${rows.length === 1 ? 'VA' : 'VAs'}`;
+  if (!rows.length) {
+    board.innerHTML = '<div class="empty-state">No VA logins yet.</div>';
+    return;
+  }
+  board.innerHTML = rows.map(r => {
+    const score = r.latest_score === null || r.latest_score === undefined ? '—' : `${r.latest_score}%`;
+    return `<div class="va-board-card">
+      <div class="va-board-card-top">
+        <div class="va-board-avatar">${escHtml(initials(r.full_name || r.email || 'VA'))}</div>
+        <div><div class="va-board-name">${escHtml(r.full_name || 'VA Trainee')}</div><div class="va-board-email">${escHtml(r.email || '')}</div></div>
+      </div>
+      <div class="va-board-meta">
+        <div><span>Last Login</span>${r.last_login_at ? fmtDate(r.last_login_at) : '—'}</div>
+        <div><span>Quotes Run</span>${Number(r.attempts_count || 0)}</div>
+        <div><span>Latest Line</span>${escHtml(r.last_line || '—')}</div>
+        <div><span>Latest Score</span>${escHtml(score)} ${r.latest_result && r.latest_result !== '—' ? `<small>(${escHtml(r.latest_result)})</small>` : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 function refreshDashboard() {
-  const myAttempts = loadAttempts().filter(a => a.email === state.trainee.email);
-  $('stat-completed').textContent = myAttempts.length;
-  const passed = myAttempts.filter(a => a.result === 'Pass').length;
+  if (!state.trainee) return;
+  const all = loadAttempts();
+  const visibleAttempts = isStaff() ? all : all.filter(a => a.email === state.trainee.email);
+  const myAttempts = all.filter(a => a.email === state.trainee.email);
+  const statAttempts = isStaff() ? visibleAttempts : myAttempts;
+  $('stat-completed').textContent = statAttempts.length;
+  const passed = statAttempts.filter(a => a.result === 'Pass').length;
   $('stat-passed').textContent = passed;
 
-  if (myAttempts.length > 0) {
-    const avg = Math.round(myAttempts.reduce((s, a) => s + a.score, 0) / myAttempts.length);
+  if (statAttempts.length > 0) {
+    const avg = Math.round(statAttempts.reduce((sum, a) => sum + Number(a.score || 0), 0) / statAttempts.length);
     $('stat-accuracy').textContent = avg + '%';
-    const totalSecs = myAttempts.reduce((s, a) => s + (a.timeSecs || 0), 0);
+    const totalSecs = statAttempts.reduce((sum, a) => sum + Number(a.timeSecs || 0), 0);
     $('stat-time').textContent = fmtTimeMin(totalSecs);
   } else {
     $('stat-accuracy').textContent = '—';
@@ -384,10 +623,15 @@ function refreshDashboard() {
   }
 
   const loginTime = new Date(state.trainee.loginTime);
-  $('dash-welcome').textContent = `Welcome back, ${state.trainee.name.split(' ')[0]}! Logged in at ${loginTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}.`;
+  const firstName = state.trainee.name.split(' ')[0];
+  $('dash-welcome').textContent = isStaff()
+    ? `Welcome back, ${firstName}! You can review submitted quote outputs from the Trainer Dashboard.`
+    : `Welcome back, ${firstName}! Logged in at ${loginTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}.`;
+
+  renderVaLoginBoard();
 
   const recentList = $('recent-list');
-  const recent = myAttempts.slice().reverse().slice(0, 5);
+  const recent = (isStaff() ? visibleAttempts : myAttempts).slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 5);
   if (recent.length === 0) {
     recentList.innerHTML = '<div class="empty-state">No completed simulations yet. Start a quote above!</div>';
     return;
@@ -401,7 +645,7 @@ function refreshDashboard() {
       </div>
       <div class="recent-item-body">
         <div class="recent-item-title">${escHtml(a.scenarioName)}</div>
-        <div class="recent-item-sub">${fmtDate(a.date)} · ${fmtTimeMin(a.timeSecs)}</div>
+        <div class="recent-item-sub">${isStaff() ? `${escHtml(a.name)} · ` : ''}${fmtDate(a.date)} · ${fmtTimeMin(a.timeSecs)}</div>
       </div>
       <span class="badge ${a.result === 'Pass' ? 'pass' : 'fail'}">${a.result}</span>
       <span class="recent-item-score ${a.result === 'Pass' ? 'pass' : 'fail'}">${a.score}%</span>
@@ -1776,6 +2020,7 @@ function submitQuote() {
     id: `att-${Date.now()}`,
     name: state.trainee.name,
     email: state.trainee.email,
+    role: state.trainee.role || 'VA',
     scenarioId: scenario.id,
     scenarioName: scenario.name,
     line: state.currentLine,
@@ -1791,9 +2036,17 @@ function submitQuote() {
     declaration,
   };
 
-  const attempts = loadAttempts();
+  const attempts = loadLocalAttempts();
   attempts.push(attempt);
   saveAttempts(attempts);
+  state.remoteAttempts = mergeAttempts([...(state.remoteAttempts || []), attempt]);
+
+  remoteRecordAttempt(attempt)
+    .then(saved => {
+      if (saved) state.remoteAttempts = mergeAttempts([...(state.remoteAttempts || []), saved]);
+      syncAndRefresh();
+    })
+    .catch(err => console.warn('Quote output saved locally only:', err.message || err));
 
   showResults(attempt);
   navigate('results');
@@ -1822,6 +2075,7 @@ function showResults(attempt) {
       <div class="results-meta-card"><div class="meta-label">Time Spent</div><div class="meta-val">${fmtTimeMin(attempt.timeSecs)}</div></div>
       <div class="results-meta-card"><div class="meta-label">Score</div><div class="meta-val">${attempt.score}% (${attempt.result})</div></div>
     </div>
+    ${attempt.reviewNotes ? `<div class="results-section-card"><div class="rsc-header">Trainer / Team Lead Coaching Note</div><div class="rsc-body"><p style="white-space:pre-wrap;margin:0">${escHtml(attempt.reviewNotes)}</p>${attempt.reviewedBy ? `<p style="margin-top:10px;color:var(--text-muted);font-size:.82rem">Reviewed by ${escHtml(attempt.reviewedBy)}${attempt.reviewedAt ? ` · ${fmtDate(attempt.reviewedAt)}` : ''}</p>` : ''}</div></div>` : ''}
     ${attempt.declaration ? renderDeclarationPage(attempt) : ''}
     ${wrongFields.length > 0 ? `
     <div class="results-section-card">
@@ -1869,6 +2123,10 @@ window.showResultDetail = function(attemptId) {
   const attempts = loadAttempts();
   const attempt = attempts.find(a => a.id === attemptId);
   if (!attempt) return;
+  if (!isStaff() && attempt.email !== state.trainee.email) {
+    showModal('Access Restricted', 'Only Trainers and Team Leads can review another VA’s quote output.', [{ label: 'Close', cls: 'btn-primary' }]);
+    return;
+  }
   showResults(attempt);
   navigate('results');
 };
@@ -1877,7 +2135,8 @@ window.showResultDetail = function(attemptId) {
 function renderHistory() {
   const myAttempts = loadAttempts()
     .filter(a => a.email === state.trainee.email)
-    .slice().reverse();
+    .slice()
+    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   const tbody = $('history-tbody');
   const empty = $('history-empty');
@@ -1901,12 +2160,72 @@ function renderHistory() {
     </tr>`).join('');
 }
 
+/* ── TRAINER REVIEW ── */
+function reviewChip(a) {
+  const status = a.reviewStatus || (a.reviewNotes ? 'Reviewed' : 'Pending');
+  const cls = status === 'Needs Revision' ? 'needs-work' : (a.reviewNotes ? 'reviewed' : '');
+  return `<span class="review-note-chip ${cls}">${escHtml(status)}</span>`;
+}
+function wrongFieldSummary(attempt) {
+  const wrong = (attempt.fieldResults || []).filter(f => !f.isCorrect).slice(0, 12);
+  if (!wrong.length) return '<div class="empty-state">No missed fields were detected.</div>';
+  return `<div class="rsc-body">${wrong.map(f => `<div class="result-field-row wrong"><div class="rf-answer"><div class="rf-label">${escHtml(f.label)}</div><div class="rf-submitted">VA entered: <strong>${escHtml(f.submitted || '(blank)')}</strong></div><div class="rf-wrong-detail">Expected: ${escHtml(String(f.correct))}</div></div></div>`).join('')}</div>`;
+}
+window.openTrainerReview = function(attemptId) {
+  if (!isStaff()) return;
+  const attempt = loadAttempts().find(a => a.id === attemptId);
+  if (!attempt) return;
+  const body = `
+    <div class="review-modal-grid">
+      <div><span>VA</span><strong>${escHtml(attempt.name)}</strong><br><small>${escHtml(attempt.email)}</small></div>
+      <div><span>Scenario</span><strong>${escHtml(attempt.scenarioName)}</strong></div>
+      <div><span>Line / Result</span><strong>${escHtml(attempt.line)} · ${attempt.score}% ${attempt.result}</strong></div>
+      <div><span>Time Spent</span><strong>${fmtTimeMin(attempt.timeSecs)}</strong></div>
+    </div>
+    <div class="results-section-card"><div class="rsc-header">Missed Field Review</div>${wrongFieldSummary(attempt)}</div>
+    <div class="review-note-box">
+      <label for="review-status"><strong>Review Status</strong></label>
+      <select id="review-status">
+        <option value="Reviewed" ${attempt.reviewStatus === 'Reviewed' ? 'selected' : ''}>Reviewed</option>
+        <option value="Needs Revision" ${attempt.reviewStatus === 'Needs Revision' ? 'selected' : ''}>Needs Revision</option>
+        <option value="Great Work" ${attempt.reviewStatus === 'Great Work' ? 'selected' : ''}>Great Work</option>
+      </select>
+      <label for="trainer-review-note"><strong>Coaching Note / What Needs to Improve</strong></label>
+      <textarea id="trainer-review-note" placeholder="Example: Please double-check the FEIN, deductible, prior loss amount, and additional insured section before submission.">${escHtml(attempt.reviewNotes || '')}</textarea>
+    </div>`;
+  showModal('Quote Output Review', body, [
+    { label: 'Cancel', cls: 'btn-outline' },
+    { label: 'Save Review Note', cls: 'btn-primary', action: async () => {
+      const notes = $('trainer-review-note')?.value?.trim() || '';
+      const status = $('review-status')?.value || 'Reviewed';
+      const localAttempts = loadLocalAttempts();
+      const idx = localAttempts.findIndex(a => a.id === attemptId);
+      if (idx >= 0) {
+        localAttempts[idx].reviewNotes = notes;
+        localAttempts[idx].reviewStatus = status;
+        localAttempts[idx].reviewedBy = state.trainee.name;
+        localAttempts[idx].reviewedAt = new Date().toISOString();
+        saveAttempts(localAttempts);
+      }
+      state.remoteAttempts = mergeAttempts((state.remoteAttempts || []).map(a => a.id === attemptId ? { ...a, reviewNotes: notes, reviewStatus: status, reviewedBy: state.trainee.name, reviewedAt: new Date().toISOString() } : a));
+      try { await remoteSaveReview(attemptId, notes, status); } catch (err) { console.warn('Review note saved locally only:', err.message || err); }
+      await syncAndRefresh();
+    }}
+  ]);
+};
+
 /* ── ADMIN ── */
 function renderAdmin() {
+  if (!isStaff()) {
+    $('admin-tbody').innerHTML = '';
+    $('admin-empty').style.display = 'block';
+    return;
+  }
   filterAdmin();
 }
 
 function filterAdmin() {
+  if (!isStaff()) return;
   const search = ($('admin-search').value || '').toLowerCase();
   const line = $('admin-filter-line').value;
   const resultFilter = $('admin-filter-result').value;
@@ -1914,13 +2233,13 @@ function filterAdmin() {
   let attempts = loadAttempts();
 
   if (search) attempts = attempts.filter(a =>
-    a.name.toLowerCase().includes(search) ||
-    a.email.toLowerCase().includes(search) ||
-    a.scenarioName.toLowerCase().includes(search));
+    String(a.name || '').toLowerCase().includes(search) ||
+    String(a.email || '').toLowerCase().includes(search) ||
+    String(a.scenarioName || '').toLowerCase().includes(search));
   if (line) attempts = attempts.filter(a => a.line === line);
   if (resultFilter) attempts = attempts.filter(a => a.result === resultFilter);
 
-  attempts = attempts.slice().reverse();
+  attempts = attempts.slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   const tbody = $('admin-tbody');
   const empty = $('admin-empty');
@@ -1942,6 +2261,8 @@ function filterAdmin() {
       <td><span class="badge ${a.result === 'Pass' ? 'pass' : 'fail'}">${a.result}</span></td>
       <td>${fmtDate(a.date)}</td>
       <td>${fmtTimeMin(a.timeSecs)}</td>
+      <td>${reviewChip(a)}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="openTrainerReview('${a.id}')">Review</button></td>
     </tr>`).join('');
 }
 
@@ -2000,6 +2321,10 @@ function init() {
         $('page-login').classList.add('active');
         $('login-name').value = '';
         $('login-email').value = '';
+        $('staff-name').value = '';
+        $('staff-email').value = '';
+        $('staff-code').value = '';
+        setLoginTab('va');
       }},
     ]);
   });
@@ -2029,16 +2354,7 @@ function init() {
   $('admin-search').addEventListener('input', filterAdmin);
   $('admin-filter-line').addEventListener('change', filterAdmin);
   $('admin-filter-result').addEventListener('change', filterAdmin);
-  $('admin-clear-btn').addEventListener('click', () => {
-    showModal('Clear All Training Data', 'This will permanently delete ALL training data from all trainees. This cannot be undone.', [
-      { label: 'Cancel', cls: 'btn-outline' },
-      { label: 'Clear All', cls: 'btn-danger', action: () => {
-        localStorage.removeItem(STORAGE_KEY_ATTEMPTS);
-        renderAdmin();
-        refreshDashboard();
-      }},
-    ]);
-  });
+  $('admin-refresh-btn')?.addEventListener('click', () => syncAndRefresh());
 
   // Modal close on overlay click
   $('modal-overlay').addEventListener('click', e => {
