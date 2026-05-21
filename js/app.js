@@ -8,6 +8,36 @@ const PASSING_SCORE = 90;
 const STORAGE_KEY_TRAINEE = 'lava_trainee';
 const STORAGE_KEY_ATTEMPTS = 'lava_attempts';
 const STORAGE_KEY_THEME = 'lava_theme';
+
+/* ── US STATES ── */
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' }, { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' }, { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' }, { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' }, { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' }, { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' }, { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' }, { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' }, { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' }, { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' }, { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' }, { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' }, { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' }, { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' }, { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' }, { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' }, { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' }, { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' }, { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' }, { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' }, { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' }, { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' }, { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' }, { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' }, { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' },
+];
+
 const LAVA_LOGO_SRC = 'data:image/png;base64,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';
 
 /* ── STATE ── */
@@ -1819,34 +1849,8 @@ function formatFieldLabel(key) {
     .trim();
 }
 
-/* ── US STATES ── */
-const US_STATES = [
-  { value: 'AL', label: 'Alabama' }, { value: 'AK', label: 'Alaska' },
-  { value: 'AZ', label: 'Arizona' }, { value: 'AR', label: 'Arkansas' },
-  { value: 'CA', label: 'California' }, { value: 'CO', label: 'Colorado' },
-  { value: 'CT', label: 'Connecticut' }, { value: 'DE', label: 'Delaware' },
-  { value: 'FL', label: 'Florida' }, { value: 'GA', label: 'Georgia' },
-  { value: 'HI', label: 'Hawaii' }, { value: 'ID', label: 'Idaho' },
-  { value: 'IL', label: 'Illinois' }, { value: 'IN', label: 'Indiana' },
-  { value: 'IA', label: 'Iowa' }, { value: 'KS', label: 'Kansas' },
-  { value: 'KY', label: 'Kentucky' }, { value: 'LA', label: 'Louisiana' },
-  { value: 'ME', label: 'Maine' }, { value: 'MD', label: 'Maryland' },
-  { value: 'MA', label: 'Massachusetts' }, { value: 'MI', label: 'Michigan' },
-  { value: 'MN', label: 'Minnesota' }, { value: 'MS', label: 'Mississippi' },
-  { value: 'MO', label: 'Missouri' }, { value: 'MT', label: 'Montana' },
-  { value: 'NE', label: 'Nebraska' }, { value: 'NV', label: 'Nevada' },
-  { value: 'NH', label: 'New Hampshire' }, { value: 'NJ', label: 'New Jersey' },
-  { value: 'NM', label: 'New Mexico' }, { value: 'NY', label: 'New York' },
-  { value: 'NC', label: 'North Carolina' }, { value: 'ND', label: 'North Dakota' },
-  { value: 'OH', label: 'Ohio' }, { value: 'OK', label: 'Oklahoma' },
-  { value: 'OR', label: 'Oregon' }, { value: 'PA', label: 'Pennsylvania' },
-  { value: 'RI', label: 'Rhode Island' }, { value: 'SC', label: 'South Carolina' },
-  { value: 'SD', label: 'South Dakota' }, { value: 'TN', label: 'Tennessee' },
-  { value: 'TX', label: 'Texas' }, { value: 'UT', label: 'Utah' },
-  { value: 'VT', label: 'Vermont' }, { value: 'VA', label: 'Virginia' },
-  { value: 'WA', label: 'Washington' }, { value: 'WV', label: 'West Virginia' },
-  { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' },
-];
+/* ── US STATES moved near top so login script loads correctly ── */
+
 
 /* ── INIT ── */
 function init() {
