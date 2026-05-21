@@ -12,7 +12,7 @@ create table if not exists public.lava_staff_codes (
 );
 
 insert into public.lava_staff_codes (id, code_hash, updated_at)
-values (true, crypt('LAVA2026!', gen_salt('bf')), now())
+values (true, extensions.crypt(('LAVA2026!', extensions.gen_salt(('bf')), now())
 on conflict (id) do update
 set code_hash = excluded.code_hash,
     updated_at = now();
@@ -103,7 +103,7 @@ as $$
     select 1
     from public.lava_staff_codes
     where id = true
-      and code_hash = crypt(coalesce(p_login_code, ''), code_hash)
+      and code_hash = extensions.crypt((coalesce(p_login_code, ''), code_hash)
   );
 $$;
 
