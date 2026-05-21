@@ -1202,3 +1202,95 @@ body.dark-mode .badge.umbrella { background: #4a3008; color: #fde68a; }
 body.dark-mode .badge.policy { background: #243044; color: #cbd5e1; }
 .generic-policy-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
 .generic-policy-grid .form-group { margin-bottom: 16px; }
+
+/* ── Declaration Page Download / Print Fix ── */
+.dec-brandbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 5px solid #e73835;
+}
+.dec-brand-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dec-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #e73835;
+  flex-shrink: 0;
+}
+.dec-brand-name {
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: #111114;
+}
+.dec-brand-note {
+  font-size: 0.68rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+.dec-training-stamp {
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.results-actions {
+  flex-wrap: wrap;
+}
+@media (max-width: 700px) {
+  .dec-brandbar { flex-direction: column; align-items: flex-start; }
+  .dec-training-stamp { white-space: normal; }
+}
+@media print {
+  .results-actions,
+  .topbar,
+  .sidebar,
+  .results-section-card,
+  .results-header-box,
+  .results-meta-grid {
+    display: none !important;
+  }
+  #page-app,
+  .main-content,
+  .pages-container,
+  .section.active,
+  .results-wrap {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  .declaration-shell {
+    margin: 0 !important;
+    max-width: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .dec-brandbar,
+  .dec-table th,
+  .dec-status,
+  .dec-training-stamp {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
