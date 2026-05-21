@@ -1,79 +1,88 @@
 # LAVA Commercial Insurance Training Portal
 
-A realistic carrier portal simulator for training Virtual Assistants on Commercial Property and Commercial Auto insurance quoting workflows.
+A realistic carrier-style quoting simulator for Commercial Property and Commercial Auto VA training. This version focuses on accuracy, attention to detail, non-licensed VA boundaries, trainer grading, and sample Declaration Page generation.
+
+## New / Improved Features
+
+- **Realistic carrier workflow feel** with submission status, carrier name, target effective date, and quote-entry authority reminders.
+- **Non-licensed VA compliance reminder** on every quote scenario: data entry only, no binding, no coverage advice, and licensed producer review required.
+- **Sample Declaration Page generator** after quote submission.
+  - Policy number / quote number
+  - Named insured and mailing / garaging address
+  - Policy period
+  - Coverage schedule
+  - Additional interests
+  - Premium summary
+  - Sample-only watermark and disclaimer
+- **Better accuracy grading** with corrected answer-key mapping so correct VA entries are graded properly.
+- **Stronger attention-to-detail validation** before moving through quote steps.
+  - Required field guardrails
+  - VIN length check
+  - FEIN format check
+  - 4-digit year check
+- **More realistic Commercial Auto physical damage workflow**, including separate vehicle physical damage selections for the easy scenario.
+- **Driver license class and violation-year fields** for more realistic commercial auto data entry.
+- **Printable results + Declaration Page** using the browser print/export option.
+- **Fixed favicon build issue** so Netlify build validation passes.
 
 ## Features
 
-- **6 Scenarios** — 3 Commercial Property + 3 Commercial Auto (Easy / Normal / Hard)
-- **Multi-step quote forms** — Mirrors real carrier portal workflows
-- **Auto-grading system** — Compare VA answers to correct scenario data, score ≥90% to pass
-- **Timer** — Tracks time spent per simulation
-- **Results page** — Detailed pass/fail report with field-by-field breakdown
-- **Trainer Dashboard** — View all VA attempts, search/filter, export-ready
-- **Dark / Light mode toggle**
-- **LocalStorage persistence** — All data saves in the browser
+- 6 scenarios total:
+  - 3 Commercial Property scenarios: Easy / Normal / Hard
+  - 3 Commercial Auto scenarios: Easy / Normal / Hard
+- Multi-step quoting forms
+- Auto-grading system with field-by-field feedback
+- Passing score: **90%**
+- Timer per quote simulation
+- My History page
+- Trainer Dashboard with all attempts saved in browser localStorage
+- Dark / Light mode toggle
+- Netlify-ready static deployment
 
 ## Usage
 
 ### Run Locally
-Open `index.html` directly in any modern browser. No build tools required.
 
-### Deploy to Netlify
+Open `index.html` directly in a modern browser.
 
-**Option 1 — Drag & Drop:**
-1. Zip the entire project folder
-2. Go to [netlify.com](https://netlify.com) → New site → Deploy manually
-3. Drag and drop the zip
+### Deploy to Netlify via Drag and Drop
 
-**Option 2 — GitHub + Netlify:**
-1. Push this repo to GitHub
-2. Go to [netlify.com](https://netlify.com) → New site from Git
-3. Select your repo
-4. Set **Publish directory** to `.` (the root)
-5. Click Deploy
+1. Zip the full project folder.
+2. Go to Netlify.
+3. Create a new manual deploy site.
+4. Drag and drop the zip file.
 
-No build command is needed. The `netlify.toml` handles routing.
+### Deploy to Netlify via GitHub
+
+1. Upload all files to GitHub.
+2. In Netlify, choose **New site from Git**.
+3. Select the repository.
+4. Build command: `npm run build`
+5. Publish directory: `.`
+6. Deploy.
 
 ## Folder Structure
 
-```
+```text
 /
-├── index.html              ← Main app entry point
-├── netlify.toml            ← Netlify deployment config
+├── index.html
+├── netlify.toml
+├── package.json
+├── build-check.js
 ├── css/
-│   └── styles.css          ← All portal styles
+│   └── styles.css
 ├── js/
-│   ├── scenarios.js        ← All scenario data & correct answers
-│   └── app.js              ← Full SPA application logic
-├── images/
-│   └── favicon.svg         ← Portal favicon
-└── README.md
+│   ├── app.js
+│   ├── scenarios.js
+│   └── endorsements.js
+└── images/
+    └── favicon.svg
 ```
 
-## Scenarios
+## Login Requirement
 
-### Commercial Property
-| # | Name | Difficulty | Fields |
-|---|------|-----------|--------|
-| 1 | Riverside Bakery | Easy | 25 |
-| 2 | Greenfield Auto Parts | Normal | 30 |
-| 3 | Crestwood Medical Supply | Hard | 38 |
+The simulator requires a full name and a `@lavatraining.com` email address.
 
-### Commercial Auto
-| # | Name | Difficulty | Fields |
-|---|------|-----------|--------|
-| 1 | Sunrise Landscaping | Easy | 22 |
-| 2 | Harmon Plumbing & HVAC | Normal | 32 |
-| 3 | Apex Regional Freight | Hard | 45 |
+## Training Note
 
-## Passing Score
-**90%** — Trainees must get 90% or more of all fields correct to pass.
-
-## Login Requirements
-- Full name required
-- Email must end with `@lavatraining.com`
-
-## Notes
-- All data is stored in `localStorage` — no backend required
-- Trainer Dashboard shows all attempts across all trainees on the same device/browser
-- Use "Clear All Data" button in Trainer Dashboard to reset
+This is a training simulator only. The generated Declaration Page is a sample document for practice and should not be treated as a binder, proof of insurance, final policy, or client-ready document. A licensed producer must review any real quote, coverage selection, eligibility decision, or policy document before client release.
