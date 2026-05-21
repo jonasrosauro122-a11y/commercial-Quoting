@@ -1564,8 +1564,18 @@ function renderDeclarationPage(attempt) {
   const coverageRows = d.coverages.map(row => `<tr><td>${escHtml(row[0])}</td><td>${escHtml(row[1])}</td><td>${escHtml(row[2])}</td></tr>`).join('');
   const vehicleRows = d.vehicles.map(row => `<tr><td>${escHtml(row[0])}</td><td>${escHtml(row[1])}</td><td>${escHtml(row[2])}</td><td>${escHtml(row[3])}</td></tr>`).join('');
   return `
-    <div class="declaration-shell">
+    <div class="declaration-shell" id="declaration-page-${escHtml(attempt.id)}">
       <div class="dec-watermark">SAMPLE TRAINING ONLY</div>
+      <div class="dec-brandbar">
+        <div class="dec-brand-left">
+          <img src="images/lava-logo.png" alt="LAVA logo" class="dec-logo" />
+          <div>
+            <div class="dec-brand-name">LAVA Training Portal</div>
+            <div class="dec-brand-note">Commercial Insurance Quoting Simulator</div>
+          </div>
+        </div>
+        <div class="dec-training-stamp">Training Sample - Not a Binder</div>
+      </div>
       <div class="dec-topline">
         <div>
           <div class="dec-carrier">${escHtml(d.carrier)}</div>
@@ -1615,12 +1625,120 @@ function renderDeclarationPage(attempt) {
       </div>
       <div class="dec-section">
         <h4>Forms & Endorsements Included</h4>
-        <p>${d.forms.map(escHtml).join(' · ')}</p>
+        <p>${d.forms.map(escHtml).join(' &middot; ')}</p>
       </div>
       <div class="dec-disclaimer">
-        ${d.reviewNotes.map(n => `<div>• ${escHtml(n)}</div>`).join('')}
+        ${d.reviewNotes.map(n => `<div>&bull; ${escHtml(n)}</div>`).join('')}
       </div>
     </div>`;
+}
+
+function declarationFileName(attempt) {
+  const d = attempt.declaration || {};
+  const insured = compact(d.namedInsured || attempt.scenarioName || 'declaration').slice(0, 36) || 'declaration';
+  const line = compact(attempt.line || 'policy').slice(0, 18) || 'policy';
+  return `LAVA-${line}-${insured}-declaration-page.html`;
+}
+
+function declarationPrintStyles() {
+  return `
+    @page { size: Letter; margin: 0.45in; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f4f6; color: #172033; font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+    .print-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; background: #111114; color: #fff; border-bottom: 5px solid #e73835; position: sticky; top: 0; z-index: 10; }
+    .print-toolbar strong { font-size: 14px; letter-spacing: .2px; }
+    .print-toolbar span { color: #ffb4b2; font-size: 12px; }
+    .print-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .print-btn { border: 0; border-radius: 999px; padding: 10px 14px; cursor: pointer; font-weight: 800; font-size: 12px; }
+    .print-btn.primary { background: #e73835; color: #fff; }
+    .print-btn.secondary { background: #fff; color: #111114; }
+    .print-page { padding: 22px; }
+    .declaration-shell { position: relative; max-width: 980px; margin: 0 auto; background: #fff; color: #172033; border: 1px solid #cbd5e1; border-radius: 14px; padding: 28px; overflow: hidden; box-shadow: 0 18px 50px rgba(15, 23, 42, .12); }
+    .dec-watermark { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%) rotate(-22deg); font-size: 58px; font-weight: 900; color: rgba(231, 56, 53, .055); white-space: nowrap; pointer-events: none; }
+    .dec-brandbar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 0 18px; border-bottom: 5px solid #e73835; margin-bottom: 16px; }
+    .dec-brand-left { display: flex; align-items: center; gap: 12px; }
+    .dec-logo { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: #e73835; }
+    .dec-brand-name { font-weight: 900; font-size: 18px; color: #111114; }
+    .dec-brand-note { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+    .dec-training-stamp { border: 1px solid #fecaca; background: #fff5f5; color: #b91c1c; border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+    .dec-topline { position: relative; display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; padding-bottom: 16px; border-bottom: 3px solid #111114; }
+    .dec-carrier { font-size: 24px; font-weight: 900; color: #111114; }
+    .dec-subtitle { margin-top: 2px; color: #64748b; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .dec-status { border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    .dec-status.pass { background: #dcfce7; color: #166534; }
+    .dec-status.fail { background: #fee2e2; color: #991b1b; }
+    .dec-grid { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+    .dec-grid > div { border: 1px solid #dbe2ea; border-radius: 10px; padding: 11px; background: #f8fafc; }
+    .dec-grid span { display: block; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .7px; font-weight: 800; margin-bottom: 4px; }
+    .dec-grid strong { font-size: 12px; color: #172033; }
+    .dec-section { position: relative; border: 1px solid #dbe2ea; border-radius: 10px; padding: 14px; margin-top: 12px; background: rgba(255,255,255,.92); page-break-inside: avoid; }
+    .dec-section.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dec-section h4 { margin: 0 0 8px; font-size: 11px; color: #b91c1c; text-transform: uppercase; letter-spacing: .8px; }
+    .dec-section p { margin: 0; color: #334155; font-size: 12px; }
+    .dec-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
+    .dec-table th { background: #111114; color: #fff; text-align: left; padding: 8px 9px; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .dec-table td { border: 1px solid #dbe2ea; padding: 8px 9px; color: #172033; vertical-align: top; }
+    .dec-table.compact td:first-child { font-weight: 700; color: #475569; }
+    .dec-total td { font-weight: 900; background: #fff5f5; }
+    .dec-disclaimer { position: relative; margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 11px; page-break-inside: avoid; }
+    @media (max-width: 820px) { .dec-grid, .dec-section.two-col { grid-template-columns: 1fr; } .dec-topline, .dec-brandbar, .print-toolbar { flex-direction: column; align-items: flex-start; } }
+    @media print { body { background: #fff; } .print-toolbar { display: none !important; } .print-page { padding: 0; } .declaration-shell { max-width: none; margin: 0; border: 0; box-shadow: none; border-radius: 0; padding: 0; } .dec-brandbar, .dec-table th, .dec-status, .dec-training-stamp { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  `;
+}
+
+function declarationStandaloneHtml(attempt, includeToolbar = true) {
+  const safeTitle = `${attempt.line} Declaration Page - ${attempt.declaration ? attempt.declaration.namedInsured : attempt.scenarioName}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escHtml(safeTitle)}</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <style>${declarationPrintStyles()}</style>
+</head>
+<body>
+  ${includeToolbar ? `<div class="print-toolbar"><div><strong>LAVA Declaration Page</strong><br><span>Use Print / Save as PDF for a clean one-page document.</span></div><div class="print-actions"><button class="print-btn secondary" onclick="window.close()">Close</button><button class="print-btn primary" onclick="window.print()">Print / Save as PDF</button></div></div>` : ''}
+  <main class="print-page">
+    ${renderDeclarationPage(attempt)}
+  </main>
+</body>
+</html>`;
+}
+
+function printDeclarationPage(attemptId) {
+  const attempt = loadAttempts().find(a => a.id === attemptId);
+  if (!attempt || !attempt.declaration) {
+    showModal('Declaration Not Found', 'The declaration page was not found for this attempt. Please submit the quote again to regenerate it.', [{ label: 'Close', cls: 'btn-outline' }]);
+    return;
+  }
+  const popup = window.open('', '_blank', 'width=1100,height=900');
+  if (!popup) {
+    showModal('Print Blocked', 'Please allow pop-ups for this site, then try printing the declaration page again.', [{ label: 'Close', cls: 'btn-outline' }]);
+    return;
+  }
+  popup.document.open();
+  popup.document.write(declarationStandaloneHtml(attempt, true));
+  popup.document.close();
+  popup.focus();
+  setTimeout(() => popup.print(), 500);
+}
+
+function downloadDeclarationPage(attemptId) {
+  const attempt = loadAttempts().find(a => a.id === attemptId);
+  if (!attempt || !attempt.declaration) {
+    showModal('Declaration Not Found', 'The declaration page was not found for this attempt. Please submit the quote again to regenerate it.', [{ label: 'Close', cls: 'btn-outline' }]);
+    return;
+  }
+  const blob = new Blob([declarationStandaloneHtml(attempt, true)], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = declarationFileName(attempt);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 /* ── SUBMIT & GRADE ── */
@@ -1736,7 +1854,9 @@ function showResults(attempt) {
     <div class="results-actions">
       <button class="btn btn-outline" onclick="retryScenario()">↺ Retry This Scenario</button>
       <button class="btn btn-primary" onclick="navigate('${policySelectRoute(attempt.line)}')">Try Another Scenario</button>
-      <button class="btn btn-success" onclick="printResults()">Print / Export Results + Dec Page</button>
+      <button class="btn btn-success" onclick="printDeclarationPage('${attempt.id}')">Print / Save Declaration PDF</button>
+      <button class="btn btn-outline" onclick="downloadDeclarationPage('${attempt.id}')">Download Declaration Page</button>
+      <button class="btn btn-outline" onclick="printResults()">Print Full Results</button>
     </div>`;
 }
 
