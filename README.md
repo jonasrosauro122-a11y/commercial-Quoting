@@ -1,6 +1,6 @@
 # LAVA Commercial Insurance Training Portal
 
-A realistic carrier-style quoting simulator for Commercial Property and Commercial Auto VA training. This version focuses on accuracy, attention to detail, non-licensed VA boundaries, trainer grading, and sample Declaration Page generation.
+A realistic carrier-style quoting simulator for Commercial Property, BOP, Workers Compensation, Commercial General Liability, Commercial Umbrella, and Commercial Auto VA training. This version focuses on accuracy, attention to detail, non-licensed VA boundaries, trainer grading, and sample Declaration Page generation.
 
 ## New / Improved Features
 
@@ -20,6 +20,7 @@ A realistic carrier-style quoting simulator for Commercial Property and Commerci
   - VIN length check
   - FEIN format check
   - 4-digit year check
+- **Expanded commercial policy training lines** for BOP, Workers Compensation, Commercial General Liability, and Commercial Umbrella.
 - **More realistic Commercial Auto physical damage workflow**, including separate vehicle physical damage selections for the easy scenario.
 - **Driver license class and violation-year fields** for more realistic commercial auto data entry.
 - **Printable results + Declaration Page** using the browser print/export option.
@@ -27,8 +28,12 @@ A realistic carrier-style quoting simulator for Commercial Property and Commerci
 
 ## Features
 
-- 6 scenarios total:
+- 18 scenarios total:
   - 3 Commercial Property scenarios: Easy / Normal / Hard
+  - 3 Business Owner's Policy scenarios: Easy / Normal / Hard
+  - 3 Workers Compensation scenarios: Easy / Normal / Hard
+  - 3 Commercial General Liability scenarios: Easy / Normal / Hard
+  - 3 Commercial Umbrella scenarios: Easy / Normal / Hard
   - 3 Commercial Auto scenarios: Easy / Normal / Hard
 - Multi-step quoting forms
 - Auto-grading system with field-by-field feedback
