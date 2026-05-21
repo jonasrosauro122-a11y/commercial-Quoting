@@ -1,30 +1,45 @@
 # LAVA Commercial Insurance Training Portal
 
-A realistic carrier-style quoting simulator for Commercial Property, BOP, Workers Compensation, Commercial General Liability, Commercial Umbrella, and Commercial Auto VA training. This version focuses on accuracy, attention to detail, non-licensed VA boundaries, trainer grading, and sample Declaration Page generation.
+A realistic carrier-style quoting simulator for Commercial Property, BOP, Workers Compensation, Commercial General Liability, Commercial Umbrella, and Commercial Auto VA training. This version includes shared data storage, role-based access, trainer review notes, accuracy grading, and sample Declaration Page generation.
 
-## New / Improved Features
+## Latest Updates
 
-- **Realistic carrier workflow feel** with submission status, carrier name, target effective date, and quote-entry authority reminders.
-- **Non-licensed VA compliance reminder** on every quote scenario: data entry only, no binding, no coverage advice, and licensed producer review required.
-- **Sample Declaration Page generator** after quote submission.
-  - Policy number / quote number
-  - Named insured and mailing / garaging address
-  - Policy period
-  - Coverage schedule
-  - Additional interests
-  - Premium summary
-  - Sample-only watermark and disclaimer
-- **Better accuracy grading** with corrected answer-key mapping so correct VA entries are graded properly.
-- **Stronger attention-to-detail validation** before moving through quote steps.
-  - Required field guardrails
-  - VIN length check
-  - FEIN format check
-  - 4-digit year check
-- **Expanded commercial policy training lines** for BOP, Workers Compensation, Commercial General Liability, and Commercial Umbrella.
-- **More realistic Commercial Auto physical damage workflow**, including separate vehicle physical damage selections for the easy scenario.
-- **Driver license class and violation-year fields** for more realistic commercial auto data entry.
-- **Printable results + Declaration Page** using the browser print/export option.
-- **Fixed favicon build issue** so Netlify build validation passes.
+- Added shared database-ready login and quote output storage.
+- Added separate **VA Login** and **Trainer / Team Lead Login**.
+- Trainer / Team Lead login uses the code: `LAVA2026!`.
+- Dashboard includes a shared **VA Login Board** so everyone can see which VAs have logged in and run quotes.
+- Trainer Dashboard is visible only after Trainer / Team Lead login.
+- Trainers and Team Leads can open VA quote outputs and add coaching notes for what the VA needs to improve.
+- Quote attempts continue to save locally as a fallback if the database keys are not configured yet.
+- No visible website label or watermark says the site is connected to the database.
+
+## Supabase Setup
+
+1. Create a Supabase project.
+2. Open **SQL Editor**.
+3. Run the full script in `supabase_setup.sql`.
+4. Open `js/supabase-config.js`.
+5. Replace these placeholders:
+
+```js
+window.LAVA_SUPABASE = {
+  url: 'YOUR_PROJECT_URL_HERE',
+  anonKey: 'YOUR_ANON_PUBLIC_KEY_HERE',
+};
+```
+
+Use your Project URL and anon/public key from Supabase Project Settings > API.
+
+## Main Files to Edit
+
+```text
+index.html                Login layout, dashboard sections, tables
+css/styles.css            Branding, login design, dashboard styling
+js/app.js                 Login logic, database sync, grading, reviews, declaration download
+js/scenarios.js           Scenario content and answer keys
+js/supabase-config.js     Supabase project URL and anon key
+supabase_setup.sql        Supabase tables, policies, and functions
+```
 
 ## Features
 
@@ -36,28 +51,19 @@ A realistic carrier-style quoting simulator for Commercial Property, BOP, Worker
   - 3 Commercial Umbrella scenarios: Easy / Normal / Hard
   - 3 Commercial Auto scenarios: Easy / Normal / Hard
 - Multi-step quoting forms
+- Scenario print/download packets
 - Auto-grading system with field-by-field feedback
 - Passing score: **90%**
 - Timer per quote simulation
-- My History page
-- Trainer Dashboard with all attempts saved in browser localStorage
+- My History page for each VA
+- Trainer Dashboard for quote review
+- Trainer coaching notes and review status
+- Sample Declaration Page generator
+- Declaration Page print/save and download
 - Dark / Light mode toggle
 - Netlify-ready static deployment
 
-## Usage
-
-### Run Locally
-
-Open `index.html` directly in a modern browser.
-
-### Deploy to Netlify via Drag and Drop
-
-1. Zip the full project folder.
-2. Go to Netlify.
-3. Create a new manual deploy site.
-4. Drag and drop the zip file.
-
-### Deploy to Netlify via GitHub
+## Deploy to Netlify via GitHub
 
 1. Upload all files to GitHub.
 2. In Netlify, choose **New site from Git**.
@@ -66,27 +72,11 @@ Open `index.html` directly in a modern browser.
 5. Publish directory: `.`
 6. Deploy.
 
-## Folder Structure
-
-```text
-/
-├── index.html
-├── netlify.toml
-├── package.json
-├── build-check.js
-├── css/
-│   └── styles.css
-├── js/
-│   ├── app.js
-│   ├── scenarios.js
-│   └── endorsements.js
-└── images/
-    └── favicon.svg
-```
-
 ## Login Requirement
 
-The simulator requires a full name and a `@lavatraining.com` email address.
+All users must enter a full name and a `@lavatraining.com` email address.
+
+Trainer / Team Lead access requires the trainer code.
 
 ## Training Note
 

@@ -44,8 +44,13 @@
           </div>
         </div>
         <h2>Secure Training Login</h2>
-        <p class="login-desc">Enter your full name and LAVA Training email to access the simulator.</p>
-        <form id="login-form" novalidate>
+        <p class="login-desc">Choose your access type to continue.</p>
+        <div class="login-tabs" role="tablist" aria-label="Login type">
+          <button type="button" class="login-tab active" id="tab-va" data-login-tab="va">VA Login</button>
+          <button type="button" class="login-tab" id="tab-staff" data-login-tab="staff">Trainer / Team Lead</button>
+        </div>
+
+        <form id="login-form" class="login-panel active" novalidate>
           <div class="form-group">
             <label for="login-name">Full Name</label>
             <input type="text" id="login-name" placeholder="e.g. Jane Smith" autocomplete="name" required />
@@ -56,7 +61,33 @@
             <input type="email" id="login-email" placeholder="yourname@lavatraining.com" autocomplete="email" required />
             <span class="field-error" id="err-email"></span>
           </div>
-          <button type="submit" class="btn btn-primary btn-full">Access Training Portal</button>
+          <button type="submit" class="btn btn-primary btn-full">Access VA Portal</button>
+        </form>
+
+        <form id="staff-login-form" class="login-panel" novalidate>
+          <div class="form-group">
+            <label for="staff-name">Full Name</label>
+            <input type="text" id="staff-name" placeholder="e.g. Trainer Name" autocomplete="name" required />
+            <span class="field-error" id="err-staff-name"></span>
+          </div>
+          <div class="form-group">
+            <label for="staff-email">Email Address</label>
+            <input type="email" id="staff-email" placeholder="trainer@lavatraining.com" autocomplete="email" required />
+            <span class="field-error" id="err-staff-email"></span>
+          </div>
+          <div class="form-group">
+            <label for="staff-role">Access Role</label>
+            <select id="staff-role" required>
+              <option value="Trainer">Trainer</option>
+              <option value="Team Lead">Team Lead</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="staff-code">Login Code</label>
+            <input type="password" id="staff-code" placeholder="Enter login code" required />
+            <span class="field-error" id="err-staff-code"></span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Access Review Dashboard</button>
         </form>
         <p class="login-note">Only @lavatraining.com emails are allowed.</p>
       </section>
@@ -105,7 +136,7 @@
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         My History
       </a>
-      <a href="#" class="nav-item" data-page="admin">
+      <a href="#" class="nav-item trainer-only" data-page="admin">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Trainer Dashboard
       </a>
@@ -165,6 +196,16 @@
           <div class="stat-card">
             <div class="stat-icon gold"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div class="stat-body"><span class="stat-value" id="stat-passed">0</span><span class="stat-label">Passed</span></div>
+          </div>
+        </div>
+
+        <div class="recent-section va-board-section">
+          <div class="section-subheader">
+            <h2>VA Login Board</h2>
+            <span class="board-meta" id="va-board-count">0 VAs</span>
+          </div>
+          <div id="va-login-board" class="va-login-board">
+            <div class="empty-state">No VA logins yet.</div>
           </div>
         </div>
 
@@ -379,7 +420,7 @@
       <section id="sec-admin" class="section">
         <div class="section-header">
           <h1>Trainer Dashboard</h1>
-          <p>All VA training attempts across all trainees.</p>
+          <p>Review VA quoting outputs and add coaching notes for improvement.</p>
         </div>
         <div class="admin-toolbar">
           <input type="text" id="admin-search" class="admin-search" placeholder="Search by name, email, or scenario&hellip;" />
@@ -397,7 +438,7 @@
             <option value="Pass">Pass</option>
             <option value="Fail">Fail</option>
           </select>
-          <button class="btn btn-danger" id="admin-clear-btn">Clear All Data</button>
+          <button class="btn btn-outline" id="admin-refresh-btn">Refresh</button>
         </div>
         <div class="table-wrap">
           <table class="data-table" id="admin-table">
@@ -412,6 +453,8 @@
                 <th>Result</th>
                 <th>Date</th>
                 <th>Time Spent</th>
+                <th>Review</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="admin-tbody"></tbody>
@@ -433,6 +476,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/scenarios.js"></script>
 <script src="js/app.js"></script>
 </body>
