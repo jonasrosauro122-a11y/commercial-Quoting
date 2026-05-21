@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAVA Commercial Insurance Training Portal</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="light-mode">
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="page-login" class="page active">
+  <div class="login-bg">
+    <div class="login-overlay"></div>
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" width="40" height="40"><polygon points="20,2 38,36 2,36" fill="#c8102e"/><polygon points="20,10 32,34 8,34" fill="white" opacity="0.15"/></svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">LAVA</span>
+          <span class="logo-sub">Commercial Insurance Training</span>
+        </div>
+      </div>
+      <h2>Carrier Portal Simulator</h2>
+      <p class="login-desc">Enter your credentials to access the training environment.</p>
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="login-name">Full Name</label>
+          <input type="text" id="login-name" placeholder="e.g. Jane Smith" autocomplete="name" required />
+          <span class="field-error" id="err-name"></span>
+        </div>
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" placeholder="yourname@lavatraining.com" autocomplete="email" required />
+          <span class="field-error" id="err-email"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Access Training Portal</button>
+      </form>
+      <p class="login-note">Must use @lavatraining.com email address</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP SHELL ===== -->
+<div id="page-app" class="page">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon sm">
+        <svg viewBox="0 0 40 40" width="28" height="28"><polygon points="20,2 38,36 2,36" fill="#c8102e"/></svg>
+      </div>
+      <span class="sidebar-brand">LAVA Portal</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" data-page="property-select">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Commercial Property
+      </a>
+      <a href="#" class="nav-item" data-page="auto-select">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Commercial Auto
+      </a>
+      <a href="#" class="nav-item" data-page="history">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        My History
+      </a>
+      <a href="#" class="nav-item" data-page="admin">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Trainer Dashboard
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="btn-icon" title="Toggle dark/light mode">
+        <svg id="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg id="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button id="logout-btn" class="btn-icon" title="Logout">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content" class="main-content">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button id="sidebar-toggle" class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-breadcrumb" id="breadcrumb">Dashboard</div>
+      <div class="topbar-right">
+        <div class="trainee-badge">
+          <div class="avatar" id="topbar-avatar">JD</div>
+          <div class="trainee-info">
+            <span class="trainee-name" id="topbar-name">Trainee</span>
+            <span class="trainee-role">VA Trainee</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGES CONTAINER -->
+    <div class="pages-container">
+
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="section active">
+        <div class="section-header">
+          <h1>Training Dashboard</h1>
+          <p id="dash-welcome">Welcome back! Continue your commercial insurance training below.</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="stat-body"><span class="stat-value" id="stat-completed">0</span><span class="stat-label">Completed</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div class="stat-body"><span class="stat-value" id="stat-accuracy">&mdash;</span><span class="stat-label">Avg. Accuracy</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="stat-body"><span class="stat-value" id="stat-time">0m</span><span class="stat-label">Time Trained</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <div class="stat-body"><span class="stat-value" id="stat-passed">0</span><span class="stat-label">Passed</span></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dash-card clickable" id="dash-property-btn">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="dash-card-body">
+              <h3>Commercial Property</h3>
+              <p>Buildings, BPP, business income, fire protection, and underwriting. Three difficulty levels.</p>
+              <div class="difficulty-badges">
+                <span class="badge easy">Easy</span>
+                <span class="badge normal">Normal</span>
+                <span class="badge hard">Hard</span>
+              </div>
+            </div>
+            <div class="dash-card-arrow">&rarr;</div>
+          </div>
+          <div class="dash-card clickable" id="dash-auto-btn">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="dash-card-body">
+              <h3>Commercial Auto</h3>
+              <p>Fleet vehicles, drivers, MVR questions, liability and physical damage. Three difficulty levels.</p>
+              <div class="difficulty-badges">
+                <span class="badge easy">Easy</span>
+                <span class="badge normal">Normal</span>
+                <span class="badge hard">Hard</span>
+              </div>
+            </div>
+            <div class="dash-card-arrow">&rarr;</div>
+          </div>
+        </div>
+
+        <div class="recent-section">
+          <div class="section-subheader">
+            <h2>Recent Activity</h2>
+            <a href="#" class="link" data-page="history">View All &rarr;</a>
+          </div>
+          <div id="recent-list" class="recent-list">
+            <div class="empty-state">No completed simulations yet. Start a quote above!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROPERTY SCENARIO SELECT -->
+      <section id="sec-property-select" class="section">
+        <div class="section-header">
+          <h1>Commercial Property Scenarios</h1>
+          <p>Choose a difficulty level to begin your quoting simulation.</p>
+        </div>
+        <div class="scenario-grid" id="property-scenario-grid"></div>
+      </section>
+
+      <!-- AUTO SCENARIO SELECT -->
+      <section id="sec-auto-select" class="section">
+        <div class="section-header">
+          <h1>Commercial Auto Scenarios</h1>
+          <p>Choose a difficulty level to begin your quoting simulation.</p>
+        </div>
+        <div class="scenario-grid" id="auto-scenario-grid"></div>
+      </section>
+
+      <!-- PROPERTY QUOTE FORM -->
+      <section id="sec-property-quote" class="section">
+        <div class="quote-header">
+          <div>
+            <h1 id="prop-quote-title">Commercial Property Quote</h1>
+            <p id="prop-scenario-label" class="scenario-pill"></p>
+          </div>
+          <div class="quote-timer-wrap">
+            <div class="timer-display" id="prop-timer">00:00</div>
+            <div class="timer-label">Elapsed Time</div>
+          </div>
+        </div>
+        <div class="scenario-brief-box" id="prop-scenario-brief"></div>
+        <div class="stepper" id="prop-stepper"></div>
+        <div class="quote-form-wrap">
+          <form id="prop-quote-form" novalidate>
+            <div id="prop-steps-container"></div>
+            <div class="form-nav">
+              <button type="button" class="btn btn-outline" id="prop-prev-btn">&larr; Previous</button>
+              <button type="button" class="btn btn-primary" id="prop-next-btn">Next &rarr;</button>
+              <button type="submit" class="btn btn-success" id="prop-submit-btn" style="display:none">Submit Quote</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- AUTO QUOTE FORM -->
+      <section id="sec-auto-quote" class="section">
+        <div class="quote-header">
+          <div>
+            <h1 id="auto-quote-title">Commercial Auto Quote</h1>
+            <p id="auto-scenario-label" class="scenario-pill"></p>
+          </div>
+          <div class="quote-timer-wrap">
+            <div class="timer-display" id="auto-timer">00:00</div>
+            <div class="timer-label">Elapsed Time</div>
+          </div>
+        </div>
+        <div class="scenario-brief-box" id="auto-scenario-brief"></div>
+        <div class="stepper" id="auto-stepper"></div>
+        <div class="quote-form-wrap">
+          <form id="auto-quote-form" novalidate>
+            <div id="auto-steps-container"></div>
+            <div class="form-nav">
+              <button type="button" class="btn btn-outline" id="auto-prev-btn">&larr; Previous</button>
+              <button type="button" class="btn btn-primary" id="auto-next-btn">Next &rarr;</button>
+              <button type="submit" class="btn btn-success" id="auto-submit-btn" style="display:none">Submit Quote</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- RESULTS PAGE -->
+      <section id="sec-results" class="section">
+        <div class="results-wrap" id="results-content"></div>
+      </section>
+
+      <!-- HISTORY PAGE -->
+      <section id="sec-history" class="section">
+        <div class="section-header">
+          <h1>My Quote History</h1>
+          <p>All your completed simulations.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Line</th>
+                <th>Scenario</th>
+                <th>Difficulty</th>
+                <th>Score</th>
+                <th>Result</th>
+                <th>Time</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="history-empty" style="display:none">No history yet.</div>
+        </div>
+      </section>
+
+      <!-- ADMIN DASHBOARD -->
+      <section id="sec-admin" class="section">
+        <div class="section-header">
+          <h1>Trainer Dashboard</h1>
+          <p>All VA training attempts across all trainees.</p>
+        </div>
+        <div class="admin-toolbar">
+          <input type="text" id="admin-search" class="admin-search" placeholder="Search by name, email, or scenario&hellip;" />
+          <select id="admin-filter-line" class="admin-filter">
+            <option value="">All Lines</option>
+            <option value="Property">Commercial Property</option>
+            <option value="Auto">Commercial Auto</option>
+          </select>
+          <select id="admin-filter-result" class="admin-filter">
+            <option value="">All Results</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+          </select>
+          <button class="btn btn-danger" id="admin-clear-btn">Clear All Data</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="admin-table">
+            <thead>
+              <tr>
+                <th>Trainee Name</th>
+                <th>Email</th>
+                <th>Line</th>
+                <th>Scenario</th>
+                <th>Difficulty</th>
+                <th>Score</th>
+                <th>Result</th>
+                <th>Date</th>
+                <th>Time Spent</th>
+              </tr>
+            </thead>
+            <tbody id="admin-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="admin-empty" style="display:none">No training data found.</div>
+        </div>
+      </section>
+
+    </div><!-- end pages-container -->
+  </main>
+</div><!-- end page-app -->
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay" style="display:none">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header" id="modal-header"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script src="js/scenarios.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
