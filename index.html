@@ -4,42 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LAVA Commercial Insurance Training Portal</title>
-  <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+  <link rel="icon" type="image/png" href="images/favicon.png" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="light-mode">
 
-<!-- ===== LOGIN PAGE ===== -->
+<!-- ===== LOGIN PAGE ONLY ON FIRST LOAD ===== -->
 <div id="page-login" class="page active">
   <div class="login-bg">
-    <div class="login-overlay"></div>
-    <div class="login-card">
-      <div class="login-logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 40 40" width="40" height="40"><polygon points="20,2 38,36 2,36" fill="#c8102e"/><polygon points="20,10 32,34 8,34" fill="white" opacity="0.15"/></svg>
+    <div class="login-glow login-glow-one"></div>
+    <div class="login-glow login-glow-two"></div>
+
+    <main class="login-shell" aria-label="LAVA Commercial Quoting Simulator Login">
+      <section class="login-hero-panel">
+        <div class="brand-lockup-large">
+          <img src="images/lava-logo.png" alt="LAVA logo" class="brand-emblem-large" />
+          <div>
+            <span class="login-eyebrow">LAVA Training Portal</span>
+            <h1>Commercial Quoting Simulator</h1>
+          </div>
         </div>
-        <div class="logo-text">
-          <span class="logo-main">LAVA</span>
-          <span class="logo-sub">Commercial Insurance Training</span>
+        <p class="login-hero-copy">A realistic carrier-style practice environment built for non-licensed VAs to strengthen accuracy, attention to detail, and commercial quoting documentation.</p>
+        <div class="login-proof-grid">
+          <div><strong>Commercial Property</strong><span>Building, BPP, BI, losses, and interests</span></div>
+          <div><strong>Commercial Auto</strong><span>Vehicles, drivers, limits, MVR, and loss history</span></div>
+          <div><strong>Scenario Packets</strong><span>Print or download every intake before starting</span></div>
         </div>
-      </div>
-      <h2>Carrier Portal Simulator</h2>
-      <p class="login-desc">Enter your credentials to access the training environment.</p>
-      <form id="login-form" novalidate>
-        <div class="form-group">
-          <label for="login-name">Full Name</label>
-          <input type="text" id="login-name" placeholder="e.g. Jane Smith" autocomplete="name" required />
-          <span class="field-error" id="err-name"></span>
+        <div class="login-compliance-note">
+          <strong>Training reminder:</strong> VAs may enter information and prepare sample documents only. Binding, advising, or interpreting coverage must be escalated to a licensed producer.
         </div>
-        <div class="form-group">
-          <label for="login-email">Email Address</label>
-          <input type="email" id="login-email" placeholder="yourname@lavatraining.com" autocomplete="email" required />
-          <span class="field-error" id="err-email"></span>
+      </section>
+
+      <section class="login-card">
+        <div class="login-logo">
+          <img src="images/lava-logo.png" alt="LAVA logo" class="brand-emblem" />
+          <div class="logo-text">
+            <span class="logo-main">LAVA</span>
+            <span class="logo-sub">Commercial Insurance Training</span>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-full">Access Training Portal</button>
-      </form>
-      <p class="login-note">Must use @lavatraining.com email address</p>
-    </div>
+        <h2>Secure Training Login</h2>
+        <p class="login-desc">Enter your full name and LAVA Training email to access the simulator.</p>
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="login-name">Full Name</label>
+            <input type="text" id="login-name" placeholder="e.g. Jane Smith" autocomplete="name" required />
+            <span class="field-error" id="err-name"></span>
+          </div>
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" placeholder="yourname@lavatraining.com" autocomplete="email" required />
+            <span class="field-error" id="err-email"></span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Access Training Portal</button>
+        </form>
+        <p class="login-note">Only @lavatraining.com emails are allowed.</p>
+      </section>
+    </main>
   </div>
 </div>
 
@@ -48,9 +69,7 @@
   <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-icon sm">
-        <svg viewBox="0 0 40 40" width="28" height="28"><polygon points="20,2 38,36 2,36" fill="#c8102e"/></svg>
-      </div>
+      <img src="images/lava-logo.png" alt="LAVA logo" class="sidebar-logo-img" />
       <span class="sidebar-brand">LAVA Portal</span>
     </div>
     <nav class="sidebar-nav">
