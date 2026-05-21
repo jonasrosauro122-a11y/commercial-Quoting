@@ -1,0 +1,11 @@
+{
+  "name": "lava-insurance-training-portal",
+  "version": "1.0.0",
+  "description": "LAVA Commercial Insurance Carrier Training Portal — VA simulator for Commercial Property and Commercial Auto quoting.",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static site — no compilation required. All files ready in root.' && node build-check.js",
+    "start": "npx serve . -l 3000",
+    "dev": "npx serve . -l 3000"
+  }
+}
